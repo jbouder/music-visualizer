@@ -4,6 +4,7 @@ import { FileSource, trackName, type QueueItem } from '../audio/sources/file';
 import { MicSource } from '../audio/sources/mic';
 import { TabSource } from '../audio/sources/tab';
 import { SourceError, type AudioSource, type SourceKind } from '../audio/sources/types';
+import type { AudioFrame } from '../audio/types';
 import { Engine, hasWebGL2 } from '../render/Engine';
 import type { Family, Renderer } from '../render/Renderer';
 import { DEFAULT_SCENE, getScene, scenesFor } from '../render/registry';
@@ -38,6 +39,7 @@ class Controller {
   private cycleElapsed = 0;
   private messageTimer = 0;
   private sceneLoad: Promise<void> = Promise.resolve();
+  private sourceStart = 0;
   readonly tabSupported = TabSource.supported;
   readonly micSupported = MicSource.supported;
 
@@ -154,6 +156,35 @@ class Controller {
     if (s instanceof FileSource) await s.previous().catch((e) => this.fail(e));
   }
 
+  /** Play: resume when paused, otherwise start the demo if nothing is playing. */
+  play(): void {
+    const s = getState();
+    if (s.source && s.paused) void this.togglePause();
+    else if (!s.source) this.playDemo();
+  }
+
+  /** Elapsed seconds and, for files, the track duration. */
+  playback(): { elapsed: number; duration: number | null } {
+    const src = this.audio.currentSource;
+    if (src instanceof FileSource) return { elapsed: src.currentTime, duration: src.duration };
+    if (!src || !this.audio.ctx) return { elapsed: 0, duration: null };
+    return { elapsed: Math.max(0, this.audio.ctx.currentTime - this.sourceStart), duration: null };
+  }
+
+  seek(seconds: number): void {
+    const src = this.audio.currentSource;
+    if (src instanceof FileSource) src.seek(seconds);
+  }
+
+  /** The most recent AudioFrame, for the deck's mini analyzer. */
+  get frame(): AudioFrame | null {
+    return this.engine?.lastFrame ?? null;
+  }
+
+  get sampleRate(): number {
+    return this.audio.ctx?.sampleRate ?? 48000;
+  }
+
   stop(): void {
     this.audio.stopSource();
     setState({ source: null, sourceLabel: '', paused: false, fileQueueLength: 0, message: null });
@@ -175,6 +206,7 @@ class Controller {
       .play(source)
       .then(() => {
         if (this.audio.currentSource !== source) return;
+        this.sourceStart = this.audio.ctx?.currentTime ?? 0;
         setState({ source: source.kind as SourceKind, sourceLabel: source.label });
       })
       .catch((err) => {

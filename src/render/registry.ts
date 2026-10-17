@@ -21,6 +21,10 @@ export const SCENES: SceneEntry[] = [
   { id: 'grid', name: 'Spectrum grid', family: 'gpu', load: async () => (await import('./renderers/shader')).createShaderScene('grid') },
   { id: 'kaleido', name: 'Kaleidoscope bloom', family: 'gpu', load: async () => (await import('./renderers/shader')).createShaderScene('kaleido') },
   { id: 'blobs', name: 'Liquid blobs', family: 'gpu', load: async () => (await import('./renderers/shader')).createShaderScene('blobs') },
+  { id: 'nebula', name: 'Nebula drift', family: 'gpu', load: async () => (await import('./renderers/shader')).createShaderScene('nebula') },
+  { id: 'blackhole', name: 'Black hole', family: 'gpu', load: async () => (await import('./renderers/shader')).createShaderScene('blackhole') },
+  { id: 'planet', name: 'Ringed planet', family: 'gpu', load: async () => (await import('./renderers/shader')).createShaderScene('planet') },
+  { id: 'hyperspace', name: 'Hyperspace', family: 'gpu', load: async () => (await import('./renderers/shader')).createShaderScene('hyperspace') },
   {
     id: 'bars',
     name: 'Spectrum bars',
@@ -63,6 +67,7 @@ export const SCENES: SceneEntry[] = [
   { id: 'ring', name: 'Ring scope', family: 'retro', load: async () => new (await import('./renderers/retro/ring')).RingScene() },
   { id: 'fountain', name: 'Dot fountain', family: 'retro', load: async () => new (await import('./renderers/retro/fountain')).FountainScene() },
   { id: 'plane', name: 'Dot plane', family: 'retro', load: async () => new (await import('./renderers/retro/plane')).PlaneScene() },
+  { id: 'flames', name: 'Flame fountain', family: 'retro', load: async () => new (await import('./renderers/retro/flames')).FlameFountainScene() },
   { id: 'ripple', name: 'Ripple', family: 'retro', load: async () => new (await import('./renderers/retro/ripple')).RippleScene() },
   { id: 'spectrogram', name: 'Spectrogram', family: 'retro', load: async () => new (await import('./renderers/retro/spectrogram')).SpectrogramScene() },
 ];

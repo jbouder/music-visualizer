@@ -32,6 +32,16 @@ export class FileSource implements AudioSource {
     return item.name + pos;
   }
 
+  get currentTime(): number {
+    return this.el.currentTime;
+  }
+  get duration(): number | null {
+    return Number.isFinite(this.el.duration) ? this.el.duration : null;
+  }
+  seek(seconds: number): void {
+    if (this.duration !== null) this.el.currentTime = Math.min(this.duration, Math.max(0, seconds));
+  }
+
   get hasNext(): boolean {
     return this.index < this.queue.length - 1;
   }

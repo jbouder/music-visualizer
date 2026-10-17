@@ -26,7 +26,7 @@ export function ScenePicker() {
   };
 
   return (
-    <Sheet title={s.mode === 'gpu' ? 'GPU scenes' : 'Retro scenes'} onClose={close} variant="dropdown" initialFocus={search}>
+    <Sheet title={s.mode === 'gpu' ? 'GPU scene list' : 'Retro scene list'} onClose={close} variant="dropdown" initialFocus={search}>
       <label className="sr-only" htmlFor="scene-search">
         Search scenes
       </label>

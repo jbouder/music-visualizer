@@ -30,6 +30,8 @@ export interface Settings {
   favorites: SceneRef[];
   rendererOptions: Record<string, Record<string, string>>;
   seenHelp: boolean;
+  /** The deck is minimized to a compact box in the bottom-right corner. */
+  deckMini: boolean;
 }
 
 export type Panel = 'none' | 'settings' | 'help' | 'picker';
@@ -73,6 +75,7 @@ export function defaultSettings(reducedMotion = prefersReducedMotion()): Setting
     favorites: [],
     rendererOptions: {},
     seenHelp: false,
+    deckMini: false,
   };
 }
 
@@ -124,6 +127,7 @@ export const useStore = create<State>()(
       favorites: s.favorites,
       rendererOptions: s.rendererOptions,
       seenHelp: s.seenHelp,
+      deckMini: s.deckMini,
     }),
     merge: (persisted, current) => ({ ...current, ...(persisted as Partial<Settings>) }),
   }),

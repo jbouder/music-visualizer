@@ -1,4 +1,5 @@
 import type { AudioEngine } from '../audio/AudioEngine';
+import type { AudioFrame } from '../audio/types';
 import { QualityGovernor, nextLowerQuality } from './quality';
 import type { RenderContext, Renderer } from './Renderer';
 import { getScene } from './registry';
@@ -29,6 +30,8 @@ export interface EngineEvents {
  */
 export class Engine {
   readonly rc: RenderContext;
+  /** The frame rendered most recently, for UI meters. Reused every frame. */
+  lastFrame: AudioFrame | null = null;
   private active: Layer | null = null;
   private outgoing: Layer[] = [];
   private raf = 0;
@@ -168,6 +171,7 @@ export class Engine {
     if (document.hidden) return;
 
     const frame = this.audio.readFrame();
+    this.lastFrame = frame;
     for (const l of this.outgoing) if (l.live) l.renderer.render(frame, dt);
     if (this.active?.live) {
       try {

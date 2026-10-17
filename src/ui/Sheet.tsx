@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react';
-import { IconClose } from './icons';
+import { ChipButton, TitleBar } from './TitleBar';
 
 interface Props {
   title: string;
@@ -13,11 +13,11 @@ interface Props {
 /** A modal sheet on phones and a centered panel (or dropdown) on desktop. */
 export function Sheet({ title, onClose, children, variant = 'sheet', initialFocus }: Props) {
   const panel = useRef<HTMLDivElement>(null);
-  const closeBtn = useRef<HTMLButtonElement>(null);
+  const closeWrap = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
-    (initialFocus?.current ?? closeBtn.current)?.focus();
+    (initialFocus?.current ?? closeWrap.current?.querySelector('button'))?.focus();
     return () => previous?.focus?.();
   }, [initialFocus]);
 
@@ -42,13 +42,14 @@ export function Sheet({ title, onClose, children, variant = 'sheet', initialFocu
 
   return (
     <div className="scrim" data-variant={variant} onPointerDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="sheet" role="dialog" aria-modal="true" aria-label={title} ref={panel} onKeyDown={onKeyDown}>
-        <div className="sheet-head">
-          <h2>{title}</h2>
-          <button ref={closeBtn} type="button" className="btn" onClick={onClose} aria-label={`Close ${title.toLowerCase()}`}>
-            <IconClose />
-          </button>
-        </div>
+      <div className="sheet window" role="dialog" aria-modal="true" aria-label={title} ref={panel} onKeyDown={onKeyDown}>
+        <TitleBar title={title}>
+          <span ref={closeWrap} style={{ display: 'contents' }}>
+            <ChipButton label={`Close ${title.toLowerCase()}`} onClick={onClose}>
+              ×
+            </ChipButton>
+          </span>
+        </TitleBar>
         <div className="sheet-body">{children}</div>
       </div>
     </div>

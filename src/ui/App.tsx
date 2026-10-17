@@ -18,6 +18,7 @@ export function App() {
   const crt = useStore((s) => s.crt);
   const started = useStore((s) => s.source !== null || s.sourceLabel !== '');
   const seenHelp = useStore((s) => s.seenHelp);
+  const deckMini = useStore((s) => s.deckMini);
   const [idleHidden, setIdleHidden] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [everStarted, setEverStarted] = useState(false);
@@ -39,7 +40,7 @@ export function App() {
     const ro = new ResizeObserver(() => document.documentElement.style.setProperty('--deck-height', `${el.offsetHeight + 24}px`));
     ro.observe(el);
     return () => ro.disconnect();
-  }, []);
+  }, [deckMini]);
 
   // In full screen, hide the deck after 4 s without pointer movement.
   useEffect(() => {

@@ -34,10 +34,11 @@ test('plays the demo in GPU mode with one tap, then switches to Retro', async ({
   await expect(page).toHaveURL(/#r=bars$/);
 
   // Walk every Retro scene, then every GPU scene.
-  for (let i = 0; i < 12; i++) await page.locator('body').press('n');
-  await expect(page.locator('canvas[data-scene="bars"]')).toBeVisible();
+  for (let i = 0; i < 13; i++) await page.locator('body').press('n');
+  // Quick presses can wrap back to Bars while the first Bars canvas is still fading out.
+  await expect(page.locator('canvas[data-scene="bars"]')).toHaveCount(1);
   await page.locator('body').press('t');
-  for (const id of ['tunnel', 'grid', 'kaleido', 'blobs']) {
+  for (const id of ['tunnel', 'grid', 'kaleido', 'blobs', 'nebula', 'blackhole', 'planet', 'hyperspace']) {
     await page.goto(`/#r=${id}`);
     await expect(page.locator(`canvas[data-scene="${id}"]`)).toBeVisible();
   }
@@ -63,30 +64,40 @@ test('switching scenes 50 times leaves one canvas, no errors and no heap growth'
     return metrics.find((m) => m.name === 'JSHeapUsedSize')!.value;
   };
   // Warm up: load every scene once so lazy chunks and preset packs are in the baseline.
-  for (const id of ['tunnel', 'grid', 'kaleido', 'blobs', 'butterchurn', 'bars', 'scope', 'fire', 'starfield', 'plasma', 'lissajous', 'trails', 'ring', 'fountain', 'plane', 'ripple', 'spectrogram']) {
+  for (const id of ['tunnel', 'grid', 'kaleido', 'blobs', 'butterchurn', 'bars', 'scope', 'fire', 'starfield', 'plasma', 'lissajous', 'trails', 'ring', 'fountain', 'plane', 'flames', 'ripple', 'spectrogram', 'nebula', 'blackhole', 'planet', 'hyperspace']) {
     await page.evaluate((id) => (location.hash = `r=${id}`), id);
     await expect(page.locator(`canvas[data-scene="${id}"]`)).toBeVisible({ timeout: 15_000 });
   }
-  await page.waitForTimeout(700);
+  // Measure on the same scene before and after, so no heavy renderer is alive either time.
+  const settleOn = async (id: string) => {
+    await page.evaluate((id) => (location.hash = `r=${id}`), id);
+    await expect(page.locator('canvas.viz-layer')).toHaveCount(1);
+    await expect(page.locator(`canvas[data-scene="${id}"]`)).toBeVisible();
+    await page.waitForTimeout(700);
+  };
+  await settleOn('bars');
   const before = await heap();
 
   // 25 random GPU switches (Butterchurn included), then 25 Retro switches.
-  await page.locator('body').press('t');
+  await settleOn('tunnel');
   for (let i = 0; i < 25; i++) {
     await page.locator('body').press('r');
     await page.waitForTimeout(150);
   }
-  await page.locator('body').press('t');
+  await settleOn('bars');
   for (let i = 0; i < 25; i++) {
     await page.locator('body').press('n');
     await page.waitForTimeout(60);
   }
-  await page.waitForTimeout(1000);
-  const after = await heap();
+  await settleOn('bars');
 
   await expect(page.locator('canvas.viz-layer')).toHaveCount(1);
   expect(errors).toEqual([]);
-  expect(after / before, `heap ${Math.round(before / 1e6)} MB → ${Math.round(after / 1e6)} MB`).toBeLessThan(1.1);
+  // Disposed renderers are released asynchronously (Butterchurn's Web Audio nodes in particular),
+  // so poll: a real leak never settles back under the threshold.
+  await expect
+    .poll(async () => (await heap()) / before, { timeout: 30_000, intervals: [1000] })
+    .toBeLessThan(1.1);
 });
 
 test('help lists every shortcut', async ({ page }) => {
