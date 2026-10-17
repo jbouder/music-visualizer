@@ -1,17 +1,22 @@
 import { FrameAnalyzer } from './analyzer';
+import { DEFAULT_EQ, Equalizer, type EqSettings } from './eq';
 import { FFT_SIZE, createSilentFrame, type AudioFrame } from './types';
 import type { AudioSource } from './sources/types';
 
 /**
  * Owns the single AudioContext and the routing every source shares:
  *
- *   source ─┬─► master ─► speakers   (demo and file only)
- *           └─► vizBus ─► analyser   (every source; Butterchurn taps vizBus too)
+ *   demo, file ─► playback ─► EQ ─┬─► master (volume) ─► speakers
+ *                                  └─► vizBus
+ *   mic, tab ───────────────────────► vizBus ─► analyser (Butterchurn taps vizBus too)
  */
 export class AudioEngine {
   private _ctx: AudioContext | null = null;
   private _master: GainNode | null = null;
   private _vizBus: GainNode | null = null;
+  private _playback: GainNode | null = null;
+  private eq: Equalizer | null = null;
+  private eqSettings: EqSettings = DEFAULT_EQ;
   private analyser: AnalyserNode | null = null;
   private analyzer: FrameAnalyzer | null = null;
   private source: AudioSource | null = null;
@@ -26,6 +31,10 @@ export class AudioEngine {
   }
   get master(): GainNode | null {
     return this._master;
+  }
+  /** Where audible sources connect: through the EQ to the speakers and the analyser. */
+  get playback(): GainNode | null {
+    return this._playback;
   }
   get currentSource(): AudioSource | null {
     return this.source;
@@ -51,6 +60,14 @@ export class AudioEngine {
       analyser.minDecibels = -90;
       analyser.maxDecibels = -10;
       vizBus.connect(analyser);
+      const playback = ctx.createGain();
+      const eq = new Equalizer(ctx);
+      playback.connect(eq.input);
+      eq.output.connect(master);
+      eq.output.connect(vizBus);
+      eq.apply(this.eqSettings);
+      this._playback = playback;
+      this.eq = eq;
       this._ctx = ctx;
       this._master = master;
       this._vizBus = vizBus;
@@ -94,6 +111,11 @@ export class AudioEngine {
       await this._ctx.resume();
       this.source?.resume?.();
     }
+  }
+
+  setEq(s: EqSettings): void {
+    this.eqSettings = s;
+    this.eq?.apply(s);
   }
 
   setVolume(v: number): void {

@@ -35,19 +35,19 @@ export class DemoSource implements AudioSource {
 
   constructor(
     private readonly ctx: AudioContext,
-    private readonly master: GainNode,
-    private readonly vizBus: GainNode,
+    /** Where the synth plays: the playback bus, or vizBus alone for a silent feed. */
+    private readonly output: AudioNode,
     /** Chiptune remix: pulse and triangle voices, fast arpeggios, no pad. */
     private readonly chip = false,
+    label?: string,
   ) {
-    this.label = chip ? 'Demo synth · chiptune remix' : 'Demo synth · generative loop';
+    this.label = label ?? (chip ? 'Demo synth · chiptune remix' : 'Demo synth · generative loop');
   }
 
   async start(): Promise<void> {
     const out = this.ctx.createGain();
     out.gain.value = 0.7;
-    out.connect(this.master);
-    out.connect(this.vizBus);
+    out.connect(this.output);
     this.out = out;
     this.noise = this.makeNoise();
     this.step = 0;

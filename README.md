@@ -54,6 +54,12 @@ The scenes:
 
 Every scene works with every source: the demo synth, local files (with a queue), the microphone, or another browser tab's audio. Without WebGL 2, the Retro look is locked on: every scene except MilkDrop presets still plays, through its canvas version.
 
+## Equalizer
+
+Press **EQ** on the player (or **E**) to open a 10-band equalizer above it. It has a preamp, bands from 60 Hz to 16 kHz (±12 dB) and presets such as Rock, Club, Full bass and Laptop speakers. Moving any slider switches the preset to Custom, and double-clicking a slider resets it. The EQ shapes what you hear from the demo and from files, and the visuals react to the equalized sound. A built-in limiter prevents clipping when bands are boosted. Microphone and tab audio are not equalized.
+
+<img src="docs/screenshots/equalizer.jpg" alt="The equalizer window above the player" width="560">
+
 ## Skins
 
 Pick a player skin under **Settings → Player skin**. Skins change more than color: window shape, button style, materials and the display itself.
@@ -75,6 +81,7 @@ Each skin lives in `src/ui/skin.css` as a block of color tokens (`:root[data-ski
 | R | Random scene |
 | T | Toggle the Retro look |
 | S | Star or unstar the current scene |
+| E | Show or hide the equalizer |
 | F | Full screen |
 | H | Hide or show the player window |
 | / | Search scenes and presets |
@@ -83,6 +90,7 @@ Each skin lives in `src/ui/skin.css` as a block of color tokens (`:root[data-ski
 - **Hide:** click the visuals to hide or show the player window.
 - **Move:** drag the title bar to put the player anywhere on screen; it stays there (even between visits) until you minimize it or double-click the title bar.
 - **Minimize:** the title bar's minimize button always shrinks the player to a compact box in the bottom-right corner, and its restore button always brings the full player back to bottom center. In between, drag the box by its striped grip to move it.
+- **Screensaver:** under **Settings → Screensaver**, pick 1, 5, 10 or 30 minutes. After that long without input, the controls and cursor hide, scenes cycle on their own, and the screen stays awake where the browser allows. With nothing playing, a silent copy of the demo drives the visuals, so the screensaver never plays sound. Move the mouse or press a key to return. Browsers only allow full screen after a click or key press, so press **F** first for a full-screen screensaver.
 - **Links:** the URL tracks the current scene, so links like `#r=blackhole&retro=1` open straight to it.
 
 ## Run it
@@ -103,7 +111,7 @@ bun run typecheck
 bun run test       # Vitest: beat detector, analyzer, store, deep links, quality governor, retro helpers
 ```
 
-CI runs the typecheck, the unit tests and a build on every push, then deploys `main` to GitHub Pages.
+CI runs the typecheck, the unit tests (beat detector, analyzer, store, deep links, quality, retro helpers, equalizer, screensaver) and a build on every push, then deploys `main` to GitHub Pages.
 
 ## How it works
 

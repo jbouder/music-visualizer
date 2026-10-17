@@ -5,6 +5,17 @@ type Key = 'deckPos' | 'miniPos';
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
+/** Bounds of the windows inside a docked wrapper (which itself spans the screen width). */
+function stackRect(el: HTMLElement): DOMRect {
+  const kids = Array.from(el.children) as HTMLElement[];
+  const rects = kids.map((k) => k.getBoundingClientRect());
+  const left = Math.min(...rects.map((r) => r.left));
+  const top = Math.min(...rects.map((r) => r.top));
+  const right = Math.max(...rects.map((r) => r.right));
+  const bottom = Math.max(...rects.map((r) => r.bottom));
+  return new DOMRect(left, top, right - left, bottom - top);
+}
+
 /**
  * Lets a window be dragged by a handle. The position is stored as fractions of
  * the free space (viewport minus window size), so it survives resizes. A
@@ -43,8 +54,8 @@ export function useDraggable(key: Key) {
   const onPointerDown = (e: React.PointerEvent<HTMLElement>) => {
     const el = wrap.current;
     if (!el || e.button !== 0 || (e.target as HTMLElement).closest('button')) return;
-    const win = (el.firstElementChild as HTMLElement | null) ?? el;
-    const start = win.getBoundingClientRect();
+    // The whole stack moves together (equalizer and player).
+    const start = el.classList.contains('is-floating') ? el.getBoundingClientRect() : stackRect(el);
     const dx = e.clientX - start.left;
     const dy = e.clientY - start.top;
     const handle = e.currentTarget;

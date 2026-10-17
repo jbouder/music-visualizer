@@ -5,7 +5,7 @@ The README describes the app. Key design points: one combined scene list with a 
 - Use **bun**, not npm (`bun install`, `bun run …`). Pin new dependencies exactly (`bun add --exact`).
 - Keep `src/audio/` and `src/render/` free of React imports. UI calls `src/app/controller.ts`; it doesn't touch the engine directly.
 - Renderers never touch audio nodes or the loop. They implement `Renderer` (`src/render/Renderer.ts`) and must free everything in `dispose()`.
-- Mic and tab sources connect to `vizBus` only, never `master`.
+- Demo and file sources connect to `playback` (EQ, then speakers and `vizBus`). Mic and tab sources connect to `vizBus` only, never the speakers.
 - Don't load scripts or fonts from a CDN at runtime.
 - Copy uses sentence case and active voice. Error messages say what happened and what to do.
 - Quality gate before committing: `bun run typecheck && bun run test && bun run build`.

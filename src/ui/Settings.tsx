@@ -1,9 +1,17 @@
 import { getScene } from '../render/registry';
 import { PALETTES, PALETTE_IDS } from '../render/renderers/retro/palettes';
-import { SKINS, setState, useStore, type CycleInterval, type QualityMode, type Skin } from '../state/store';
+import { SKINS, setState, useStore, type CycleInterval, type QualityMode, type ScreensaverDelay, type Skin } from '../state/store';
 import { Sheet } from './Sheet';
 
 const INTERVALS: CycleInterval[] = [10, 20, 30, 60];
+const SAVER: { value: ScreensaverDelay; label: string }[] = [
+  { value: 0, label: 'Off' },
+  { value: 1, label: '1 min' },
+  { value: 5, label: '5 min' },
+  { value: 10, label: '10 min' },
+  { value: 30, label: '30 min' },
+];
+
 const QUALITIES: { value: QualityMode; label: string }[] = [
   { value: 'auto', label: 'Auto' },
   { value: 1, label: 'High' },
@@ -72,6 +80,8 @@ export function Settings() {
         onChange={(v) => setState({ cycleInterval: v })}
       />
       <Toggle id="set-favs" label="Cycle favorites only" checked={s.favoritesOnly} onChange={(v) => setState({ favoritesOnly: v })} />
+      <Segmented label="Screensaver" value={s.screensaver} options={SAVER} onChange={(v) => setState({ screensaver: v })} />
+      <p className="note">After this long without input, the controls and cursor hide and scenes cycle on their own. Move the mouse or press a key to return.</p>
       <Segmented label="Quality" value={s.quality} options={QUALITIES} onChange={(v) => setState({ quality: v })} />
       {autoNote && <p className="note">{autoNote}</p>}
       <Toggle id="set-crt" label="CRT overlay" hint="Scanlines and a vignette over every scene." checked={s.crt} onChange={(v) => setState({ crt: v })} />

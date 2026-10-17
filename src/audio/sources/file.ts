@@ -19,8 +19,7 @@ export class FileSource implements AudioSource {
   constructor(
     private readonly el: HTMLAudioElement,
     private readonly node: MediaElementAudioSourceNode,
-    private readonly master: GainNode,
-    private readonly vizBus: GainNode,
+    private readonly output: AudioNode,
     private readonly queue: QueueItem[],
     private readonly onTrackChange: (src: FileSource) => void,
   ) {}
@@ -51,8 +50,7 @@ export class FileSource implements AudioSource {
 
   async start(): Promise<void> {
     if (!this.queue.length) throw new SourceError('Choose an audio file to play.');
-    this.node.connect(this.master);
-    this.node.connect(this.vizBus);
+    this.node.connect(this.output);
     this.el.addEventListener('ended', this.onEndedBound);
     await this.load(0);
   }

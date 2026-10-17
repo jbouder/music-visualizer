@@ -8,6 +8,7 @@ export const SHORTCUTS: [string, string][] = [
   ['R', 'Random scene'],
   ['T', 'Toggle the Retro look on or off'],
   ['S', 'Star or unstar the current scene'],
+  ['E', 'Show or hide the equalizer'],
   ['F', 'Toggle full screen'],
   ['H', 'Hide or show the deck'],
   ['/', 'Focus scene search'],

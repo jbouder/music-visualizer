@@ -3,6 +3,7 @@ import { controller } from '../app/controller';
 import { getScene } from '../render/registry';
 import { isFavorite, setState, useStore } from '../state/store';
 import { Display, MiniTime, SeekBar } from './Display';
+import { EqWindow } from './EqWindow';
 import { fullscreenSupported, toggleFullscreen } from './fullscreen';
 import { ChipButton, ChipGlyph, TitleBar } from './TitleBar';
 import { useDraggable } from './useDraggable';
@@ -81,6 +82,7 @@ export function Deck({ hidden, deckRef, pickerButtonRef }: Props) {
 
   return (
     <div className={`deck-wrap${full.floating ? ' is-floating' : ''}`} ref={full.wrap} data-hidden={hidden} inert={hidden}>
+      {s.eqOpen && <EqWindow handleProps={full.handleProps} />}
       <div className="window main-window" ref={deckRef} onClick={(e) => e.stopPropagation()}>
         <TitleBar title="Music visualizer" handleProps={full.handleProps}>
           {fullscreenSupported() && (
@@ -131,6 +133,17 @@ export function Deck({ hidden, deckRef, pickerButtonRef }: Props) {
             >
               <span className="led" aria-hidden="true" />
               Auto
+            </button>
+            <button
+              type="button"
+              className="led-btn"
+              aria-label="Equalizer"
+              aria-pressed={s.eqOpen}
+              title="Equalizer (E)"
+              onClick={() => setState({ eqOpen: !s.eqOpen })}
+            >
+              <span className="led" aria-hidden="true" />
+              EQ
             </button>
           </div>
 

@@ -1,12 +1,15 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import type { SourceKind } from '../audio/sources/types';
+import { DEFAULT_EQ, type EqSettings } from '../audio/eq';
 import type { PaletteChoice } from '../render/Renderer';
 import { DEFAULT_SCENE } from '../render/registry';
 import { createSafeStorage, prefersReducedMotion } from './persistence';
 
 export type QualityMode = 'auto' | 1 | 0.75 | 0.5;
 export type CycleInterval = 10 | 20 | 30 | 60;
+/** Minutes of inactivity before the screensaver starts; 0 is off. */
+export type ScreensaverDelay = 0 | 1 | 5 | 10 | 30;
 
 export interface SceneRef {
   rendererId: string;
@@ -38,6 +41,9 @@ export interface Settings {
   /** Unlocked from the hidden terminal. */
   skin: Skin;
   monitor: boolean;
+  eq: EqSettings;
+  eqOpen: boolean;
+  screensaver: ScreensaverDelay;
 }
 
 export interface WindowPos {
@@ -81,6 +87,7 @@ export interface Runtime {
   fileQueueLength: number;
   /** A hidden game is open. */
   game: Game | null;
+  screensaverActive: boolean;
 }
 
 export type State = Settings & Runtime;
@@ -105,6 +112,9 @@ export function defaultSettings(reducedMotion = prefersReducedMotion()): Setting
     miniPos: null,
     skin: 'classic',
     monitor: false,
+    eq: DEFAULT_EQ,
+    eqOpen: false,
+    screensaver: 0,
   };
 }
 
@@ -122,6 +132,7 @@ const initialRuntime: Runtime = {
   presets: [],
   fileQueueLength: 0,
   game: null,
+  screensaverActive: false,
 };
 
 export const sameRef = (a: SceneRef, b: SceneRef) =>
@@ -171,6 +182,9 @@ export const useStore = create<State>()(
       miniPos: s.miniPos,
       skin: s.skin,
       monitor: s.monitor,
+      eq: s.eq,
+      eqOpen: s.eqOpen,
+      screensaver: s.screensaver,
     }),
     merge: (persisted, current) => ({ ...current, ...(persisted as Partial<Settings>) }),
   }),

@@ -47,6 +47,10 @@ export function useShortcuts(): void {
         case 'F':
           toggleFullscreen();
           break;
+        case 'e':
+        case 'E':
+          setState((s) => ({ eqOpen: !s.eqOpen }));
+          break;
         case 'h':
         case 'H':
           setState((s) => ({ deckHidden: !s.deckHidden }));

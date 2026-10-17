@@ -19,6 +19,7 @@ import {
   type SceneRef,
 } from '../state/store';
 import { formatHash, parseHash } from './deeplink';
+import { shouldStartScreensaver } from './screensaver';
 
 const PRESET_BLEND = 2.5;
 const PRESET_BLEND_REDUCED = 4;
@@ -41,6 +42,8 @@ class Controller {
   private messageTimer = 0;
   private sceneLoad: Promise<void> = Promise.resolve();
   private sourceStart = 0;
+  private lastInput = performance.now();
+  private saver: { deckHidden: boolean; feed: AudioSource | null; wakeLock: { release(): Promise<void> } | null } | null = null;
   readonly tabSupported = TabSource.supported;
   readonly micSupported = MicSource.supported;
 
@@ -72,6 +75,7 @@ class Controller {
         rc.options = s.rendererOptions;
       }
       if (s.volume !== prev.volume) this.audio.setVolume(s.volume);
+      if (s.eq !== prev.eq) this.audio.setEq(s.eq);
       if (s.quality !== prev.quality) this.applyQuality();
       if (s.message !== prev.message) {
         window.clearTimeout(this.messageTimer);
@@ -81,6 +85,17 @@ class Controller {
       }
     });
     this.audio.setVolume(getState().volume);
+    this.audio.setEq(getState().eq);
+
+    // Screensaver: any input ends it and resets the idle clock.
+    const wake = () => {
+      this.lastInput = performance.now();
+      if (this.saver) this.stopScreensaver();
+    };
+    for (const ev of ['pointermove', 'pointerdown', 'keydown', 'wheel', 'touchstart'] as const) {
+      window.addEventListener(ev, wake, { passive: true, capture: true });
+    }
+    window.setInterval(() => this.screensaverTick(), 1000);
 
     window.setInterval(() => this.autoCycleTick(), 500);
     window.addEventListener('hashchange', (e) => {
@@ -107,13 +122,13 @@ class Controller {
   /** Must be called directly from a click/tap handler. */
   playDemo(): void {
     const ctx = this.audio.unlock();
-    this.start(new DemoSource(ctx, this.audio.master!, this.audio.vizBus!));
+    this.start(new DemoSource(ctx, this.audio.playback!));
   }
 
   /** Chiptune remix of the demo plus the intro scene. */
   launchIntro(): void {
     const ctx = this.audio.unlock();
-    this.start(new DemoSource(ctx, this.audio.master!, this.audio.vizBus!, true));
+    this.start(new DemoSource(ctx, this.audio.playback!, true));
     setState({ deckHidden: true });
     void this.selectScene('intro');
   }
@@ -148,7 +163,7 @@ class Controller {
       this.fileNode = ctx.createMediaElementSource(this.fileEl);
     }
     const queue: QueueItem[] = list.map((file) => ({ file, name: trackName(file) }));
-    const src = new FileSource(this.fileEl, this.fileNode!, this.audio.master!, this.audio.vizBus!, queue, (s) => {
+    const src = new FileSource(this.fileEl, this.fileNode!, this.audio.playback!, queue, (s) => {
       if (this.audio.currentSource === s) setState({ sourceLabel: s.label });
     });
     setState({ fileQueueLength: queue.length });
@@ -430,9 +445,49 @@ class Controller {
     setState({ sceneLabel: ref.presetId ? `${name} · ${ref.presetId}` : name });
   }
 
+  private screensaverTick(): void {
+    const s = getState();
+    const start = shouldStartScreensaver({
+      delayMinutes: s.screensaver,
+      idleMs: performance.now() - this.lastInput,
+      active: !!this.saver,
+      audioReady: !!this.audio.ctx && !!this.host,
+      busy: s.panel !== 'none' || !!s.game || s.paused,
+    });
+    if (start) this.startScreensaver();
+  }
+
+  private startScreensaver(): void {
+    const s = getState();
+    this.saver = { deckHidden: s.deckHidden, feed: null, wakeLock: null };
+    // With nothing playing, feed the visuals a silent copy of the demo (never the speakers).
+    if (!s.source && this.audio.ctx && this.audio.vizBus) {
+      const feed = new DemoSource(this.audio.ctx, this.audio.vizBus, false, 'Screensaver · silent demo');
+      this.saver.feed = feed;
+      this.start(feed);
+    }
+    setState({ deckHidden: true, screensaverActive: true });
+    document.documentElement.classList.add('screensaver');
+    const nav = navigator as Navigator & { wakeLock?: { request(type: 'screen'): Promise<{ release(): Promise<void> }> } };
+    void nav.wakeLock?.request('screen').then((lock) => {
+      if (this.saver) this.saver.wakeLock = lock;
+      else void lock.release();
+    }).catch(() => {});
+  }
+
+  private stopScreensaver(): void {
+    const saver = this.saver;
+    if (!saver) return;
+    this.saver = null;
+    document.documentElement.classList.remove('screensaver');
+    void saver.wakeLock?.release().catch(() => {});
+    if (saver.feed && this.audio.currentSource === saver.feed) this.stop();
+    setState({ deckHidden: saver.deckHidden, screensaverActive: false });
+  }
+
   private autoCycleTick(): void {
     const s = getState();
-    if (!s.autoCycle || !s.source || s.paused || s.searchFocused || s.panel === 'picker') return;
+    if (!(s.autoCycle || s.screensaverActive) || !s.source || s.paused || s.searchFocused || s.panel === 'picker') return;
     if (!this.engine || this.engine.transitioning || document.hidden) return;
     this.cycleElapsed += 0.5;
     if (this.cycleElapsed >= s.cycleInterval) this.next(true);
