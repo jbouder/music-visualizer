@@ -41,10 +41,9 @@ This repo uses **bun** for installs, because npm's resolver has crashed on recen
 ```sh
 bun run typecheck
 bun run test       # Vitest: beat detector, analyzer, store, deep links, quality governor, retro helpers
-bun run e2e        # Playwright smoke test, desktop and phone (builds first)
 ```
 
-The first e2e run needs a browser: `bunx playwright install chromium`.
+CI runs the typecheck, the unit tests and a build on every push, then deploys `main` to GitHub Pages.
 
 ## How it works
 
