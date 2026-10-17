@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react';
-import { ChipButton, TitleBar } from './TitleBar';
+import { ChipButton, ChipGlyph, TitleBar } from './TitleBar';
 
 interface Props {
   title: string;
@@ -46,7 +46,7 @@ export function Sheet({ title, onClose, children, variant = 'sheet', initialFocu
         <TitleBar title={title}>
           <span ref={closeWrap} style={{ display: 'contents' }}>
             <ChipButton label={`Close ${title.toLowerCase()}`} onClick={onClose}>
-              ×
+              <ChipGlyph name="close" />
             </ChipButton>
           </span>
         </TitleBar>

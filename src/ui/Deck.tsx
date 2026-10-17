@@ -4,7 +4,7 @@ import { getScene } from '../render/registry';
 import { isFavorite, setState, useStore } from '../state/store';
 import { Display, MiniTime, SeekBar } from './Display';
 import { fullscreenSupported, toggleFullscreen } from './fullscreen';
-import { ChipButton, TitleBar } from './TitleBar';
+import { ChipButton, ChipGlyph, TitleBar } from './TitleBar';
 import { useDraggable } from './useDraggable';
 
 interface Props {
@@ -71,7 +71,7 @@ export function Deck({ hidden, deckRef, pickerButtonRef }: Props) {
               <Glyph d={G.next} />
             </button>
             <ChipButton label="Restore controls" onClick={() => setState({ deckMini: false, deckPos: null })}>
-              □
+              <ChipGlyph name="restore" />
             </ChipButton>
           </div>
         </div>
@@ -85,11 +85,11 @@ export function Deck({ hidden, deckRef, pickerButtonRef }: Props) {
         <TitleBar title="Music visualizer" handleProps={full.handleProps}>
           {fullscreenSupported() && (
             <ChipButton label="Full screen" onClick={() => toggleFullscreen()}>
-              □
+              <ChipGlyph name="fullscreen" />
             </ChipButton>
           )}
           <ChipButton label="Minimize controls" onClick={() => setState({ deckMini: true, miniPos: null })}>
-            _
+            <ChipGlyph name="minimize" />
           </ChipButton>
         </TitleBar>
 

@@ -205,13 +205,17 @@ select {
   place-items: center;
   width: 20px;
   height: 18px;
-  font: 700 13px/1 var(--font-ui);
   color: var(--glyph);
   background: linear-gradient(180deg, var(--silver-hi), var(--silver) 45%, var(--silver-lo));
   box-shadow:
     inset 1px 1px 0 #fff,
     inset -1px -1px 0 #5c5c6c,
     0 0 0 1px var(--frame-edge);
+}
+.chip-face svg {
+  width: 10px;
+  height: 10px;
+  fill: currentColor;
 }
 .chip:active .chip-face {
   background: linear-gradient(180deg, var(--silver-lo), var(--silver));
