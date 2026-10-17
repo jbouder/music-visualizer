@@ -68,9 +68,14 @@ export abstract class RetroScene implements Renderer {
       n++;
     }
     if (this.acc >= RETRO_STEP) this.acc = 0;
-    this.draw(frame);
 
     const o = this.out;
+    if (!this.rc.retroLook && this.drawHD) {
+      this.drawHD(o, frame);
+      return;
+    }
+    this.draw(frame);
+
     const { x, y, w, h } = this.rect;
     o.fillStyle = '#000';
     o.fillRect(0, 0, o.canvas.width, o.canvas.height);
@@ -106,6 +111,11 @@ export abstract class RetroScene implements Renderer {
     return resolvePalette(this.rc.palette, this.natural);
   }
 
+  /** How far we are between fixed steps (0-1), for smooth full-resolution drawing. */
+  protected get stepFraction(): number {
+    return Math.min(1, this.acc / RETRO_STEP);
+  }
+
   /** False when Reduce flashing is on: skip strobe-like beat effects. */
   protected get flashAllowed(): boolean {
     return !this.rc.reduceFlashing;
@@ -127,4 +137,10 @@ export abstract class RetroScene implements Renderer {
   protected abstract step(frame: AudioFrame): void;
   /** Per-animation-frame drawing into the low-res buffer. */
   protected draw(_frame: AudioFrame): void {}
+  /**
+   * Optional sharp, full-resolution drawing used when the Retro look is off,
+   * for scenes whose shapes would blur when upscaled. Draws straight onto the
+   * visible canvas, sized in device pixels.
+   */
+  protected drawHD?(out: CanvasRenderingContext2D, frame: AudioFrame): void;
 }

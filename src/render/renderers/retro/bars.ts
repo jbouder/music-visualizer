@@ -75,35 +75,61 @@ export class BarsScene extends RetroScene {
   }
 
   protected draw(frame: AudioFrame): void {
-    const g = this.g;
+    const x0 = Math.floor((this.W - (BARS * PITCH - (PITCH - BAR_W))) / 2);
+    this.paint(this.g, frame, { width: this.W, height: this.H, x0, base: this.H - 2, pitch: PITCH, barW: BAR_W, segPitch: SEG_H, segH: 1 });
+  }
+
+  /** With the Retro look off: the same analyzer drawn crisply at screen resolution. */
+  protected drawHD(out: CanvasRenderingContext2D, frame: AudioFrame): void {
+    const width = out.canvas.width;
+    const height = out.canvas.height;
+    const areaW = width * 0.86;
+    const areaH = Math.min(height * 0.6, areaW * 0.42);
+    const pitch = Math.floor(areaW / BARS);
+    const segPitch = Math.max(2, Math.floor(areaH / SEGS));
+    this.paint(out, frame, {
+      width,
+      height,
+      x0: Math.round((width - pitch * BARS) / 2 + pitch * 0.1),
+      base: Math.round(height / 2 + (segPitch * SEGS) / 2),
+      pitch,
+      barW: Math.max(1, Math.round(pitch * 0.8)),
+      segPitch,
+      segH: Math.max(1, Math.round(segPitch * 0.62)),
+    });
+  }
+
+  private paint(
+    g: CanvasRenderingContext2D,
+    frame: AudioFrame,
+    l: { width: number; height: number; x0: number; base: number; pitch: number; barW: number; segPitch: number; segH: number },
+  ): void {
     const p = this.palette;
     g.fillStyle = p.bg;
-    g.fillRect(0, 0, this.W, this.H);
+    g.fillRect(0, 0, l.width, l.height);
     if (this.flashAllowed && frame.beat > 0.85) {
       g.fillStyle = p.dim;
       g.globalAlpha = (frame.beat - 0.85) * 3;
-      g.fillRect(0, 0, this.W, this.H);
+      g.fillRect(0, 0, l.width, l.height);
       g.globalAlpha = 1;
     }
 
     // Normal: color by segment height. Fire: hottest at each bar's top. Line: one color per bar.
     const style = optionValue(this.rc, this.id, this.options, 'style');
-    const x0 = Math.floor((this.W - (BARS * PITCH - (PITCH - BAR_W))) / 2);
-    const base = this.H - 2;
     for (let i = 0; i < BARS; i++) {
-      const x = x0 + i * PITCH;
+      const x = l.x0 + i * l.pitch;
       const h = Math.floor(this.heights[i]);
       for (let s = 0; s < SEGS; s++) {
         if (s >= h) g.fillStyle = this.unlit;
         else if (style === 'fire') g.fillStyle = this.lit[SEGS - h + s];
         else if (style === 'line') g.fillStyle = this.lit[h - 1];
         else g.fillStyle = this.lit[s];
-        g.fillRect(x, base - s * SEG_H, BAR_W, 1);
+        g.fillRect(x, l.base - s * l.segPitch - l.segH, l.barW, l.segH);
       }
       const pk = Math.floor(this.peaks[i]);
       if (pk > 0) {
         g.fillStyle = p.fg;
-        g.fillRect(x, base - Math.min(SEGS - 1, pk) * SEG_H, BAR_W, 1);
+        g.fillRect(x, l.base - Math.min(SEGS - 1, pk) * l.segPitch - l.segH, l.barW, l.segH);
       }
     }
   }

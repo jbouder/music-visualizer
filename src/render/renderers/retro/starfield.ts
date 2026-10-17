@@ -24,6 +24,7 @@ export class StarfieldScene extends RetroScene {
   private pz = new Float32Array(STARS);
   private colors: string[] = [];
   private bump = 0;
+  private speed = 0;
   private readonly warp: boolean;
 
   constructor(opts: StarfieldOptions = {}) {
@@ -48,38 +49,48 @@ export class StarfieldScene extends RetroScene {
 
   protected step(frame: AudioFrame): void {
     this.bump = Math.max(this.bump * 0.85, frame.beat);
-    const speed = this.warp ? 0.35 + frame.bass * 2.6 + this.bump * 1.4 : 0.12 + frame.bass * 1.1 + this.bump * 0.7;
-    const { W, H, g } = this;
-    const f = H * 0.5;
+    this.speed = this.warp ? 0.35 + frame.bass * 2.6 + this.bump * 1.4 : 0.12 + frame.bass * 1.1 + this.bump * 0.7;
+    for (let i = 0; i < STARS; i++) {
+      this.pz[i] = this.z[i];
+      this.z[i] -= this.speed * RETRO_STEP;
+      // Recycle stars that pass the camera or leave even a wide screen.
+      if (this.z[i] <= 0.02 || Math.abs(this.x[i] / this.z[i]) > 2.6 || Math.abs(this.y[i] / this.z[i]) > 1.1) this.reset(i, 1);
+    }
+  }
 
+  protected draw(): void {
+    this.paint(this.g, this.W, this.H, 1, 1);
+  }
+
+  /** With the Retro look off: sharp streaks at screen resolution, moving smoothly between steps. */
+  protected drawHD(out: CanvasRenderingContext2D): void {
+    const h = out.canvas.height;
+    this.paint(out, out.canvas.width, h, Math.max(1, h / 300), this.stepFraction);
+  }
+
+  private paint(g: CanvasRenderingContext2D, W: number, H: number, lineScale: number, t: number): void {
+    const f = H * 0.5;
     g.fillStyle = this.palette.bg;
     g.fillRect(0, 0, W, H);
-    g.lineWidth = 1;
+    g.lineCap = lineScale > 1 ? 'round' : 'butt';
+    const trailSteps = this.warp ? 6 : 2;
 
     const paths: Path2D[] = Array.from({ length: BUCKETS }, () => new Path2D());
     for (let i = 0; i < STARS; i++) {
-      this.pz[i] = this.z[i];
-      this.z[i] -= speed * RETRO_STEP;
-      if (this.z[i] <= 0.02) {
-        this.reset(i, 1);
-        continue;
-      }
-      const sx = W / 2 + (this.x[i] / this.z[i]) * f;
-      const sy = H / 2 + (this.y[i] / this.z[i]) * f;
-      if (sx < 0 || sx >= W || sy < 0 || sy >= H) {
-        this.reset(i, 1);
-        continue;
-      }
-      // Trail: about three steps back, for a short streak.
-      const tz = Math.min(1, this.pz[i] + speed * RETRO_STEP * (this.warp ? 6 : 2));
-      const px = W / 2 + (this.x[i] / tz) * f;
-      const py = H / 2 + (this.y[i] / tz) * f;
-      const b = Math.min(BUCKETS - 1, Math.floor((1 - this.z[i]) * BUCKETS));
-      paths[b].moveTo(px, py);
+      // Interpolate between the last two steps so full-resolution motion stays smooth.
+      const z = this.pz[i] + (this.z[i] - this.pz[i]) * t;
+      if (z <= 0.02 || this.z[i] > this.pz[i]) continue; // just recycled
+      const sx = W / 2 + (this.x[i] / z) * f;
+      const sy = H / 2 + (this.y[i] / z) * f;
+      if (sx < 0 || sx >= W || sy < 0 || sy >= H) continue;
+      const tz = Math.min(1, z + this.speed * RETRO_STEP * trailSteps);
+      const b = Math.min(BUCKETS - 1, Math.floor((1 - z) * BUCKETS));
+      paths[b].moveTo(W / 2 + (this.x[i] / tz) * f, H / 2 + (this.y[i] / tz) * f);
       paths[b].lineTo(sx + 0.5, sy + 0.5);
     }
     for (let b = 0; b < BUCKETS; b++) {
       g.strokeStyle = this.colors[b];
+      g.lineWidth = lineScale * (1 + (b / (BUCKETS - 1)) * (lineScale > 1 ? 1.2 : 0));
       g.stroke(paths[b]);
     }
   }
