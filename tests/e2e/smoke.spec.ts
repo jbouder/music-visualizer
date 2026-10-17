@@ -47,7 +47,9 @@ test('plays the demo in GPU mode with one tap, then switches to Retro', async ({
 });
 
 test('switching scenes 50 times leaves one canvas, no errors and no heap growth', async ({ page }) => {
-  test.setTimeout(90_000);
+  test.setTimeout(180_000);
+  // CI runners render WebGL in software; a small viewport keeps 50 switches about lifecycle, not fill rate.
+  await page.setViewportSize({ width: 480, height: 270 });
   const errors = trackErrors(page);
   await startDemo(page);
   await expect(page.locator('canvas[data-scene="butterchurn"]')).toBeVisible({ timeout: 15_000 });
