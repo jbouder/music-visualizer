@@ -32,6 +32,14 @@ export interface Settings {
   seenHelp: boolean;
   /** The deck is minimized to a compact box in the bottom-right corner. */
   deckMini: boolean;
+  /** Where the player was dragged, as 0-1 fractions of the free space; null when docked. */
+  deckPos: WindowPos | null;
+  miniPos: WindowPos | null;
+}
+
+export interface WindowPos {
+  x: number;
+  y: number;
 }
 
 export type Panel = 'none' | 'settings' | 'help' | 'picker';
@@ -76,6 +84,8 @@ export function defaultSettings(reducedMotion = prefersReducedMotion()): Setting
     rendererOptions: {},
     seenHelp: false,
     deckMini: false,
+    deckPos: null,
+    miniPos: null,
   };
 }
 
@@ -137,6 +147,8 @@ export const useStore = create<State>()(
       rendererOptions: s.rendererOptions,
       seenHelp: s.seenHelp,
       deckMini: s.deckMini,
+      deckPos: s.deckPos,
+      miniPos: s.miniPos,
     }),
     merge: (persisted, current) => ({ ...current, ...(persisted as Partial<Settings>) }),
   }),

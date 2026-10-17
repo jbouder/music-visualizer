@@ -61,7 +61,10 @@ export function Help() {
           </tbody>
         </table>
       </div>
-      <p className="note">Tap or click the visuals to hide or show the deck.</p>
+      <p className="note">
+        Tap or click the visuals to hide or show the player. Drag its title bar to move it, and double-click the title bar to dock it again.
+        The minimize button shrinks it to a small box you can drag by its grip.
+      </p>
     </Sheet>
   );
 }

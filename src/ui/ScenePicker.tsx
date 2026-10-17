@@ -27,7 +27,7 @@ export function ScenePicker() {
   };
 
   return (
-    <Sheet title="Scene list" onClose={close} variant="dropdown" initialFocus={search}>
+    <Sheet title="Scene list" onClose={close} variant={s.deckPos && !s.deckMini ? 'sheet' : 'dropdown'} initialFocus={search}>
       <label className="sr-only" htmlFor="scene-search">
         Search scenes
       </label>

@@ -5,6 +5,7 @@ import { isFavorite, setState, useStore } from '../state/store';
 import { Display, MiniTime, SeekBar } from './Display';
 import { fullscreenSupported, toggleFullscreen } from './fullscreen';
 import { ChipButton, TitleBar } from './TitleBar';
+import { useDraggable } from './useDraggable';
 
 interface Props {
   hidden: boolean;
@@ -41,12 +42,15 @@ export function Deck({ hidden, deckRef, pickerButtonRef }: Props) {
   const starred = isFavorite(s.favorites, ref);
   const sceneName = getScene(ref.rendererId)?.name ?? ref.rendererId;
   const playLabel = s.source && s.paused ? 'Resume' : 'Play demo';
+  const full = useDraggable('deckPos');
+  const mini = useDraggable('miniPos');
 
   if (s.deckMini) {
     return (
-      <div className="deck-wrap is-mini" data-hidden={hidden} inert={hidden}>
+      <div className={`deck-wrap is-mini${mini.floating ? ' is-floating' : ''}`} ref={mini.wrap} data-hidden={hidden} inert={hidden}>
         <div className="window mini-window" ref={deckRef} onClick={(e) => e.stopPropagation()}>
           <div className="mini-bar" role="group" aria-label="Compact controls">
+            <span className="mini-grip" title="Drag to move. Double-click to dock." {...mini.handleProps} />
             <p className="sr-only" role="status" aria-live="polite">
               {s.message?.text ?? s.sourceLabel}
             </p>
@@ -76,9 +80,9 @@ export function Deck({ hidden, deckRef, pickerButtonRef }: Props) {
   }
 
   return (
-    <div className="deck-wrap" data-hidden={hidden} inert={hidden}>
+    <div className={`deck-wrap${full.floating ? ' is-floating' : ''}`} ref={full.wrap} data-hidden={hidden} inert={hidden}>
       <div className="window main-window" ref={deckRef} onClick={(e) => e.stopPropagation()}>
-        <TitleBar title="Music visualizer">
+        <TitleBar title="Music visualizer" handleProps={full.handleProps}>
           {fullscreenSupported() && (
             <ChipButton label="Full screen" onClick={() => toggleFullscreen()}>
               □

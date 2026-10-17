@@ -46,7 +46,10 @@ Every scene works with every source: the demo synth, local files (with a queue),
 | / | Search scenes and presets |
 | ? | Help |
 
-Click the visuals to hide or show the player window. The title bar's minimize button docks it as a compact box in the bottom-right corner. The URL tracks the current scene, so links like `#r=blackhole&retro=1` open straight to it.
+- **Hide:** click the visuals to hide or show the player window.
+- **Move:** drag the title bar to put the player anywhere on screen. Double-click the title bar to dock it back at the bottom. The position is remembered between visits.
+- **Minimize:** the title bar's minimize button shrinks the player to a compact box in the bottom-right corner. Drag its striped grip to move it, and double-click the grip to dock it again.
+- **Links:** the URL tracks the current scene, so links like `#r=blackhole&retro=1` open straight to it.
 
 ## Run it
 
@@ -89,7 +92,7 @@ Source (demo | file | mic | tab)
 | `src/render/renderers/` | `butterchurn/`, `shader/*.frag`, `retro/*.ts` |
 | `src/state/` | Zustand store, persisted to localStorage through a try/catch wrapper |
 | `src/app/controller.ts` | Plain-TS glue between store, audio and engine; React calls into it |
-| `src/ui/` | Player window (`Deck`, `Display`, seven-segment clock, mini analyzer, marquee), scene list, settings, help, `skin.css` |
+| `src/ui/` | Player window (`Deck`, `Display`, seven-segment clock, mini analyzer, marquee, `useDraggable`), scene list, settings, help, `skin.css` |
 
 The audio and render code has no React imports.
 

@@ -168,6 +168,26 @@ select {
   margin: -7px 0;
 }
 
+/* Drag handles */
+.titlebar[data-handle='true'],
+.mini-grip {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.titlebar[data-handle='true']:active,
+.mini-grip:active {
+  cursor: grabbing;
+}
+.mini-grip {
+  align-self: stretch;
+  width: 14px;
+  margin-right: 2px;
+  background: repeating-linear-gradient(90deg, var(--title-on) 0 1px, var(--title-on-lo) 1px 2px, transparent 2px 4px);
+  opacity: 0.8;
+}
+
 /* A tiny-looking button with a 44 px hit area. */
 .chip {
   appearance: none;
@@ -656,6 +676,22 @@ input[type='range']:disabled {
   .seek[data-seekable='false'] {
     display: none;
   }
+}
+
+/* Dragged somewhere: the wrapper shrinks to the window and sits where it was dropped. */
+.deck-wrap.is-floating {
+  right: auto;
+  bottom: auto;
+  width: min(var(--window-max), calc(100vw - 16px));
+  padding: 0;
+  display: block;
+}
+.deck-wrap.is-mini.is-floating {
+  width: max-content;
+  padding: 0;
+}
+.deck-wrap.is-floating[data-hidden='true'] {
+  transform: none;
 }
 
 /* Minimized: a compact box in the bottom-right corner */

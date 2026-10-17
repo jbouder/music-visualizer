@@ -1,9 +1,18 @@
 import type { ReactNode } from 'react';
 
 /** Classic player title bar: grooved stripes either side of the title, small buttons on the right. */
-export function TitleBar({ title, children }: { title: string; children?: ReactNode }) {
+export function TitleBar({
+  title,
+  children,
+  handleProps,
+}: {
+  title: string;
+  children?: ReactNode;
+  /** Makes the bar a drag handle for its window. */
+  handleProps?: React.HTMLAttributes<HTMLDivElement>;
+}) {
   return (
-    <div className="titlebar">
+    <div className="titlebar" data-handle={!!handleProps} title={handleProps ? 'Drag to move. Double-click to dock.' : undefined} {...handleProps}>
       <span className="titlebar-grip" aria-hidden="true" />
       <span className="titlebar-title">{title}</span>
       <span className="titlebar-grip" aria-hidden="true" />
