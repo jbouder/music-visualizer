@@ -1,6 +1,6 @@
 # Agent notes
 
-The original build spec lives in `docs/SPEC.md`. The app has since moved on from it in places: one combined scene list with a Retro *look* toggle (`src/render/retroLook.ts`) instead of two scene families, and a classic-player skin.
+The README describes the app. Key design points: one combined scene list with a Retro *look* toggle (`src/render/retroLook.ts`) rather than separate scene families, and a classic 2000s player skin drawn in CSS (no third-party product names or artwork).
 
 - Use **bun**, not npm (`bun install`, `bun run …`). Pin new dependencies exactly (`bun add --exact`).
 - Keep `src/audio/` and `src/render/` free of React imports. UI calls `src/app/controller.ts`; it doesn't touch the engine directly.

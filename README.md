@@ -32,6 +32,22 @@ The scenes:
 
 Every scene works with every source: the demo synth, local files (with a queue), the microphone, or another browser tab's audio. Without WebGL 2, the app runs the canvas scenes with the Retro look locked on.
 
+## Controls
+
+| Key | Action |
+| --- | --- |
+| Space | Pause or resume audio |
+| N / P | Next or previous scene (in MilkDrop presets: a random preset, or back) |
+| R | Random scene |
+| T | Toggle the Retro look |
+| S | Star or unstar the current scene |
+| F | Full screen |
+| H | Hide or show the player window |
+| / | Search scenes and presets |
+| ? | Help |
+
+Click the visuals to hide or show the player window. The title bar's minimize button docks it as a compact box in the bottom-right corner. The URL tracks the current scene, so links like `#r=blackhole&retro=1` open straight to it.
+
 ## Run it
 
 ```sh
@@ -68,16 +84,18 @@ Source (demo | file | mic | tab)
 | Path | What it is |
 | --- | --- |
 | `src/audio/` | `AudioEngine` (one AudioContext, master, vizBus, analyser), `analyzer.ts` (AudioFrame), `beat.ts` (pure onset detector), `sources/` |
-| `src/render/` | `Engine` (one rAF loop, canvas per renderer, 400 ms crossfade, adaptive quality, context-loss recovery), `registry.ts` (lazy loaders) |
+| `src/render/` | `Engine` (one rAF loop, canvas per renderer, 400 ms crossfade, adaptive quality, context-loss recovery), `registry.ts` (lazy loaders), `retroLook.ts` (renders any GPU scene in the Retro look) |
 | `src/render/gl/` | `ShaderScene` runner, data textures, ping-pong feedback buffers |
 | `src/render/renderers/` | `butterchurn/`, `shader/*.frag`, `retro/*.ts` |
 | `src/state/` | Zustand store, persisted to localStorage through a try/catch wrapper |
 | `src/app/controller.ts` | Plain-TS glue between store, audio and engine; React calls into it |
-| `src/ui/` | Deck, LCD, scene picker, settings, help, `skin.css` |
+| `src/ui/` | Player window (`Deck`, `Display`, seven-segment clock, mini analyzer, marquee), scene list, settings, help, `skin.css` |
 
 The audio and render code has no React imports.
 
 ### Adding a scene
 
 - **Shader:** add `src/render/renderers/shader/<id>.frag`, a config in `shader/index.ts`, and an entry in `registry.ts`. The runner prepends the uniforms (`uTime`, `uResolution`, `uBass`, `uMid`, `uTreble`, `uRms`, `uBeat`, `uFlash`, `uTravel`, `uFreq`, `uWave`, `uPrev`) and the helpers `freqAt(x)` and `waveAt(x)`. Multiply any beat flash by `uFlash`.
-- **Retro:** extend `RetroScene` with an internal `W` and `H`, do simulation work in `step()` (fixed 30 Hz), and use `this.palette` for colors. Check `this.flashAllowed` before any strobe-like effect. For trails and feedback, draw into a `PixelBuffer` (`retro/fx.ts`): `move()` (zoom and rotate), `blur()` and `fade()`, then `line()` and `dot()`. Use `beatOnset()` to react once per beat.
+- **Canvas:** extend `RetroScene` with an internal `W` and `H`, do simulation work in `step()` (fixed 30 Hz), and use `this.palette` for colors. Check `this.flashAllowed` before any strobe-like effect. For trails and feedback, draw into a `PixelBuffer` (`retro/fx.ts`): `move()` (zoom and rotate), `blur()` and `fade()`, then `line()` and `dot()`. Use `beatOnset()` to react once per beat.
+
+The Retro look needs nothing extra: GPU scenes get it through `RetroLook`, and canvas scenes switch between crisp and smooth scaling on their own.
