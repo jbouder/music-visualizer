@@ -6,6 +6,7 @@ import hyperspace from './hyperspace.frag?raw';
 import kaleido from './kaleido.frag?raw';
 import nebula from './nebula.frag?raw';
 import planet from './planet.frag?raw';
+import rain from './rain.frag?raw';
 import tunnel from './tunnel.frag?raw';
 
 const CONFIGS: Record<string, ShaderSceneConfig> = {
@@ -17,6 +18,7 @@ const CONFIGS: Record<string, ShaderSceneConfig> = {
   blackhole: { id: 'blackhole', name: 'Black hole', frag: blackhole },
   planet: { id: 'planet', name: 'Ringed planet', frag: planet },
   hyperspace: { id: 'hyperspace', name: 'Hyperspace', frag: hyperspace, travelSpeed: (b) => 0.3 + b.bass * 2.5 },
+  rain: { id: 'rain', name: 'Digital rain', frag: rain, travelSpeed: (b) => 0.35 + b.bass * 1.2 },
 };
 
 export function createShaderScene(id: keyof typeof CONFIGS): ShaderScene {

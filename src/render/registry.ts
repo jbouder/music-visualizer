@@ -25,6 +25,7 @@ export const SCENES: SceneEntry[] = [
   { id: 'blackhole', name: 'Black hole', family: 'gpu', load: async () => (await import('./renderers/shader')).createShaderScene('blackhole') },
   { id: 'planet', name: 'Ringed planet', family: 'gpu', load: async () => (await import('./renderers/shader')).createShaderScene('planet') },
   { id: 'hyperspace', name: 'Hyperspace', family: 'gpu', load: async () => (await import('./renderers/shader')).createShaderScene('hyperspace') },
+  { id: 'rain', name: 'Digital rain', family: 'gpu', load: async () => (await import('./renderers/shader')).createShaderScene('rain') },
   {
     id: 'bars',
     name: 'Spectrum bars',

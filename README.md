@@ -14,7 +14,7 @@ A browser music visualizer in the spirit of 2000s media players: a classic playe
 
 ## Scenes
 
-One list of 22 scenes, plus every bundled MilkDrop preset. Press **T** (or the Retro button) to toggle the **Retro look** for whatever is playing:
+One list of 23 scenes, plus every bundled MilkDrop preset. Press **T** (or the Retro button) to toggle the **Retro look** for whatever is playing:
 
 - **GPU scenes** render at about 320×200, dithered to the Retro palette: a green, amber or ice-blue monochrome monitor, or 64-color VGA.
 - **Canvas scenes** switch between crisp pixels (Retro on) and a smooth, glowing upscale (Retro off).
@@ -23,7 +23,7 @@ The scenes:
 
 - **WebGL 2:**
   - Every bundled MilkDrop preset (395) via Butterchurn.
-  - Eight shader scenes: Warp tunnel, Spectrum grid, Kaleidoscope bloom, Liquid blobs, Nebula drift, Black hole, Ringed planet and Hyperspace.
+  - Nine shader scenes: Warp tunnel, Spectrum grid, Kaleidoscope bloom, Liquid blobs, Nebula drift, Black hole, Ringed planet, Hyperspace and Digital rain.
 - **Canvas 2D:** thirteen low-resolution scenes, each taking one of four palettes (green phosphor, amber, ice blue, VGA rainbow):
   - Spectrum bars, in Normal, Fire and Line coloring.
   - Oscilloscope, with Line, Dots and Solid traces.
