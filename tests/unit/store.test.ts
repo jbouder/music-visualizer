@@ -11,7 +11,7 @@ describe('defaultSettings', () => {
     expect(s.autoCycle).toBe(true);
     expect(s.cycleInterval).toBe(20);
     expect(s.quality).toBe('auto');
-    expect(s.palette).toBe('green');
+    expect(s.palette).toBe('auto');
     expect(s.volume).toBe(0.9);
     expect(s.reduceFlashing).toBe(false);
   });

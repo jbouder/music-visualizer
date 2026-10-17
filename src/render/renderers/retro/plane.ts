@@ -1,6 +1,7 @@
 import type { AudioFrame } from '../../../audio/types';
 import { logBinRanges } from './bars';
 import { PixelBuffer } from './fx';
+import { SCENE_PALETTES } from './palettes';
 import { RETRO_STEP, RetroScene } from './RetroScene';
 
 const COLS = 32;
@@ -13,6 +14,7 @@ export class PlaneScene extends RetroScene {
   readonly name = 'Dot plane';
   protected readonly W = 320;
   protected readonly H = 200;
+  protected natural = SCENE_PALETTES.water;
 
   private fb!: PixelBuffer;
   private ranges: [number, number][] = [];

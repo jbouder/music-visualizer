@@ -8,6 +8,14 @@ export interface SceneEntry {
   options?: OptionSchema;
   /** Creates a fresh instance; heavy code is split out with dynamic import(). */
   load: () => Promise<Renderer>;
+  /** GPU scenes: a classic-era Canvas 2D version used for the Retro look. */
+  retro?: () => Promise<Renderer>;
+  /** GPU scenes without a counterpart: keep their own colors (16-bit) in the Retro look. */
+  retroNative?: boolean;
+}
+
+function shader(id: string, name: string, retro: () => Promise<Renderer>): SceneEntry {
+  return { id, name, family: 'gpu', load: async () => (await import('./renderers/shader')).createShaderScene(id), retro };
 }
 
 export const SCENES: SceneEntry[] = [
@@ -16,16 +24,17 @@ export const SCENES: SceneEntry[] = [
     name: 'MilkDrop presets',
     family: 'gpu',
     load: async () => new (await import('./renderers/butterchurn/ButterchurnRenderer')).ButterchurnRenderer(),
+    retroNative: true,
   },
-  { id: 'tunnel', name: 'Warp tunnel', family: 'gpu', load: async () => (await import('./renderers/shader')).createShaderScene('tunnel') },
-  { id: 'grid', name: 'Spectrum grid', family: 'gpu', load: async () => (await import('./renderers/shader')).createShaderScene('grid') },
-  { id: 'kaleido', name: 'Kaleidoscope bloom', family: 'gpu', load: async () => (await import('./renderers/shader')).createShaderScene('kaleido') },
-  { id: 'blobs', name: 'Liquid blobs', family: 'gpu', load: async () => (await import('./renderers/shader')).createShaderScene('blobs') },
-  { id: 'nebula', name: 'Nebula drift', family: 'gpu', load: async () => (await import('./renderers/shader')).createShaderScene('nebula') },
-  { id: 'blackhole', name: 'Black hole', family: 'gpu', load: async () => (await import('./renderers/shader')).createShaderScene('blackhole') },
-  { id: 'planet', name: 'Ringed planet', family: 'gpu', load: async () => (await import('./renderers/shader')).createShaderScene('planet') },
-  { id: 'hyperspace', name: 'Hyperspace', family: 'gpu', load: async () => (await import('./renderers/shader')).createShaderScene('hyperspace') },
-  { id: 'rain', name: 'Digital rain', family: 'gpu', load: async () => (await import('./renderers/shader')).createShaderScene('rain') },
+  shader('tunnel', 'Warp tunnel', async () => new (await import('./renderers/retro/classic/tunnel')).ClassicTunnel()),
+  shader('grid', 'Spectrum grid', async () => new (await import('./renderers/retro/classic/landscape')).WireLandscape()),
+  shader('kaleido', 'Kaleidoscope bloom', async () => new (await import('./renderers/retro/classic/mirror')).MirrorFeedback()),
+  shader('blobs', 'Liquid blobs', async () => new (await import('./renderers/retro/classic/metaballs')).Metaballs()),
+  shader('nebula', 'Nebula drift', async () => new (await import('./renderers/retro/classic/clouds')).CloudDrift()),
+  shader('blackhole', 'Black hole', async () => new (await import('./renderers/retro/classic/disk')).ParticleDisk()),
+  shader('planet', 'Ringed planet', async () => new (await import('./renderers/retro/classic/sphere')).ShadedPlanet()),
+  shader('hyperspace', 'Hyperspace', async () => new (await import('./renderers/retro/starfield')).StarfieldScene({ warp: true })),
+  shader('rain', 'Digital rain', async () => new (await import('./renderers/retro/classic/glyphs')).GlyphRain()),
   {
     id: 'bars',
     name: 'Spectrum bars',

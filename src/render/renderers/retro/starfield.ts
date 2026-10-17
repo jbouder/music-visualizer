@@ -1,16 +1,22 @@
 import type { AudioFrame } from '../../../audio/types';
-import { lutCss } from './palettes';
+import { PALETTES, lutCss } from './palettes';
 import { RETRO_STEP, RetroScene } from './RetroScene';
 
 const STARS = 520;
 const BUCKETS = 8;
 
-/** 3D stars flying toward the camera with short trails. */
+export interface StarfieldOptions {
+  /** Hyperspace-style: faster, with long streaks. */
+  warp?: boolean;
+}
+
+/** 3D stars flying toward the camera with short trails (or long streaks in warp). */
 export class StarfieldScene extends RetroScene {
   readonly id = 'starfield';
   readonly name = 'Starfield';
   protected readonly W = 320;
   protected readonly H = 180;
+  protected natural = PALETTES.ice;
 
   private x = new Float32Array(STARS);
   private y = new Float32Array(STARS);
@@ -18,6 +24,12 @@ export class StarfieldScene extends RetroScene {
   private pz = new Float32Array(STARS);
   private colors: string[] = [];
   private bump = 0;
+  private readonly warp: boolean;
+
+  constructor(opts: StarfieldOptions = {}) {
+    super();
+    this.warp = !!opts.warp;
+  }
 
   protected setup(): void {
     for (let i = 0; i < STARS; i++) this.reset(i, Math.random());
@@ -36,7 +48,7 @@ export class StarfieldScene extends RetroScene {
 
   protected step(frame: AudioFrame): void {
     this.bump = Math.max(this.bump * 0.85, frame.beat);
-    const speed = 0.12 + frame.bass * 1.1 + this.bump * 0.7;
+    const speed = this.warp ? 0.35 + frame.bass * 2.6 + this.bump * 1.4 : 0.12 + frame.bass * 1.1 + this.bump * 0.7;
     const { W, H, g } = this;
     const f = H * 0.5;
 
@@ -59,7 +71,7 @@ export class StarfieldScene extends RetroScene {
         continue;
       }
       // Trail: about three steps back, for a short streak.
-      const tz = Math.min(1, this.pz[i] + speed * RETRO_STEP * 2);
+      const tz = Math.min(1, this.pz[i] + speed * RETRO_STEP * (this.warp ? 6 : 2));
       const px = W / 2 + (this.x[i] / tz) * f;
       const py = H / 2 + (this.y[i] / tz) * f;
       const b = Math.min(BUCKETS - 1, Math.floor((1 - this.z[i]) * BUCKETS));

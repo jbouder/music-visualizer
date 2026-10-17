@@ -1,4 +1,5 @@
 import type { AudioFrame } from '../../../audio/types';
+import { PALETTES } from './palettes';
 import { RETRO_STEP, RetroScene } from './RetroScene';
 
 /** Sum-of-sines plasma with palette cycling. */
@@ -7,6 +8,7 @@ export class PlasmaScene extends RetroScene {
   readonly name = 'Palette plasma';
   protected readonly W = 160;
   protected readonly H = 90;
+  protected natural = PALETTES.vga;
 
   private image: ImageData | null = null;
   private pixels = new Uint32Array(0);

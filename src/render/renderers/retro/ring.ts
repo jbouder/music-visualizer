@@ -1,6 +1,7 @@
 import type { AudioFrame } from '../../../audio/types';
 import { logBinRanges } from './bars';
 import { PixelBuffer, waveAt } from './fx';
+import { PALETTES } from './palettes';
 import { RETRO_STEP, RetroScene } from './RetroScene';
 
 const SPOKES = 48;
@@ -12,6 +13,7 @@ export class RingScene extends RetroScene {
   readonly name = 'Ring scope';
   protected readonly W = 240;
   protected readonly H = 240;
+  protected natural = PALETTES.vga;
 
   private fb!: PixelBuffer;
   private ranges: [number, number][] = [];

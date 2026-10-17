@@ -81,6 +81,13 @@ export class PixelBuffer {
     this.swap();
   }
 
+  /** Rebuilds the frame from a source-index table: out[i] = in[map[i]]. */
+  remap(map: Int32Array): void {
+    const { px, back } = this;
+    for (let i = 0; i < map.length; i++) back[i] = px[map[i]];
+    this.swap();
+  }
+
   dot(x: number, y: number, c: number, size = 1): void {
     const xi = x | 0;
     const yi = y | 0;

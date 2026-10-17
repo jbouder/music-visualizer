@@ -1,4 +1,5 @@
 import type { AudioFrame } from '../../../audio/types';
+import { SCENE_PALETTES } from './palettes';
 import { RetroScene } from './RetroScene';
 
 /** Classic palette-mapped fire: a heat buffer rising through a scrolling cooling map. */
@@ -7,6 +8,7 @@ export class FireScene extends RetroScene {
   readonly name = 'Fire';
   protected readonly W = 160;
   protected readonly H = 100;
+  protected natural = SCENE_PALETTES.fire;
 
   private heat = new Uint8Array(0);
   private cool: Uint8Array = new Uint8Array(0);

@@ -1,6 +1,6 @@
 import type { AudioFrame } from '../../../audio/types';
 import type { RenderContext, Renderer } from '../../Renderer';
-import { PALETTES, type Palette } from './palettes';
+import { PALETTES, resolvePalette, type Palette } from './palettes';
 
 export const RETRO_STEP = 1 / 30;
 const MAX_STEPS_PER_FRAME = 4;
@@ -99,8 +99,11 @@ export abstract class RetroScene implements Renderer {
     this.out = null;
   }
 
+  /** This scene's own colors, used when the palette setting is Scene colors. */
+  protected natural: Palette = PALETTES.green;
+
   protected get palette(): Palette {
-    return PALETTES[this.rc.palette] ?? PALETTES.green;
+    return resolvePalette(this.rc.palette, this.natural);
   }
 
   /** False when Reduce flashing is on: skip strobe-like beat effects. */

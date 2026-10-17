@@ -3,6 +3,7 @@ import type { AudioFrame } from '../audio/types';
 import { QualityGovernor, nextLowerQuality } from './quality';
 import type { RenderContext, Renderer } from './Renderer';
 import { getScene } from './registry';
+import { Counterpart } from './counterpart';
 import { RetroLook } from './retroLook';
 
 export const CROSSFADE_MS = 400;
@@ -96,8 +97,15 @@ export class Engine {
     if (!entry) throw new Error(`Unknown scene: ${id}`);
     const token = ++this.token;
 
-    const loaded = await entry.load();
-    const renderer = this.rc.retroLook && loaded.family === 'gpu' ? new RetroLook(loaded) : loaded;
+    // In the Retro look, GPU scenes use their classic counterpart, or else a low-res wrapper.
+    let renderer: Renderer;
+    if (this.rc.retroLook && entry.family === 'gpu') {
+      renderer = entry.retro
+        ? new Counterpart(await entry.retro(), entry.id, entry.name)
+        : new RetroLook(await entry.load(), { native: entry.retroNative, pixels: entry.retroNative ? 76800 : undefined });
+    } else {
+      renderer = await entry.load();
+    }
     const canvas = document.createElement('canvas');
     canvas.className = 'viz-layer';
     canvas.dataset.family = renderer.family;

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import type { SourceKind } from '../audio/sources/types';
-import type { PaletteId } from '../render/Renderer';
+import type { PaletteChoice } from '../render/Renderer';
 import { DEFAULT_SCENE } from '../render/registry';
 import { createSafeStorage, prefersReducedMotion } from './persistence';
 
@@ -24,7 +24,7 @@ export interface Settings {
   favoritesOnly: boolean;
   quality: QualityMode;
   crt: boolean;
-  palette: PaletteId;
+  palette: PaletteChoice;
   reduceFlashing: boolean;
   volume: number;
   favorites: SceneRef[];
@@ -77,7 +77,7 @@ export function defaultSettings(reducedMotion = prefersReducedMotion()): Setting
     favoritesOnly: false,
     quality: 'auto',
     crt: false,
-    palette: 'green',
+    palette: 'auto',
     reduceFlashing: reducedMotion,
     volume: 0.9,
     favorites: [],

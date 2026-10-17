@@ -1,4 +1,5 @@
 import type { AudioFrame } from '../../../audio/types';
+import { SCENE_PALETTES } from './palettes';
 import { RETRO_STEP, RetroScene } from './RetroScene';
 
 const MAX = 1500;
@@ -13,6 +14,7 @@ export class FlameFountainScene extends RetroScene {
   readonly name = 'Flame fountain';
   protected readonly W = 200;
   protected readonly H = 150;
+  protected natural = SCENE_PALETTES.fire;
 
   private heat = new Uint8Array(0);
   private image: ImageData | null = null;

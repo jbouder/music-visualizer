@@ -56,12 +56,12 @@ class Controller {
       }
       // Drop scenes that no longer exist (renamed in an update) or need WebGL 2 we don't have.
       const entry = getScene(scene?.rendererId);
-      if (!entry || (!webgl2 && entry.family === 'gpu')) scene = { rendererId: DEFAULT_SCENE[webgl2 ? 'gpu' : 'retro'] };
+      if (!entry || (!webgl2 && entry.family === 'gpu' && !entry.retro)) scene = { rendererId: DEFAULT_SCENE[webgl2 ? 'gpu' : 'retro'] };
       next.scene = scene;
       if (!webgl2) next.retroLook = true;
       return next;
     });
-    if (!webgl2) showMessage('WebGL 2 is not available, so GPU scenes are off. Retro scenes still work.', 'error');
+    if (!webgl2) showMessage('WebGL 2 is not available, so scenes play in the Retro look and MilkDrop presets are off.', 'error');
     this.updateSceneLabel();
 
     useStore.subscribe((s, prev) => {
@@ -273,7 +273,7 @@ class Controller {
   selectScene(rendererId: string, presetId?: string, blend = PRESET_BLEND, reload = false): Promise<void> {
     const entry = getScene(rendererId);
     if (!entry) return Promise.resolve();
-    if (entry.family === 'gpu' && !getState().webgl2) {
+    if (entry.family === 'gpu' && !entry.retro && !getState().webgl2) {
       showMessage('GPU scenes need WebGL 2, which this browser does not have.', 'error');
       return Promise.resolve();
     }
@@ -381,9 +381,9 @@ class Controller {
     return getState().scene ?? null;
   }
 
-  /** Every scene this browser can run: all of them, or only canvas scenes without WebGL 2. */
+  /** Every scene this browser can run. Without WebGL 2: canvas scenes and GPU scenes with a classic counterpart. */
   available(): SceneEntry[] {
-    return getState().webgl2 ? SCENES : SCENES.filter((e) => e.family === 'retro');
+    return getState().webgl2 ? SCENES : SCENES.filter((e) => e.family === 'retro' || e.retro);
   }
 
   private stepScene(dir: 1 | -1): void {

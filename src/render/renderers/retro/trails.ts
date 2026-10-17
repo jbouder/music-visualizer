@@ -1,5 +1,6 @@
 import type { AudioFrame } from '../../../audio/types';
 import { PixelBuffer, waveAt } from './fx';
+import { PALETTES } from './palettes';
 import { RETRO_STEP, RetroScene } from './RetroScene';
 
 const POINTS = 220;
@@ -11,6 +12,7 @@ export class TrailsScene extends RetroScene {
   readonly name = 'Scope trails';
   protected readonly W = 320;
   protected readonly H = 200;
+  protected natural = PALETTES.vga;
 
   private fb!: PixelBuffer;
   private t = 0;

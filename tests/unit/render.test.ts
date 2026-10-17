@@ -16,6 +16,13 @@ describe('registry', () => {
     ]);
   });
 
+  it('gives every shader scene a classic counterpart; MilkDrop keeps its own colors', () => {
+    for (const s of scenesFor('gpu')) {
+      if (s.id === 'butterchurn') expect(s.retroNative).toBe(true);
+      else expect(s.retro, s.id).toBeTypeOf('function');
+    }
+  });
+
   it('has unique ids', () => {
     expect(new Set(SCENES.map((s) => s.id)).size).toBe(SCENES.length);
   });

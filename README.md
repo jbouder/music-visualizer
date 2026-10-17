@@ -16,8 +16,30 @@ A browser music visualizer in the spirit of 2000s media players: a classic playe
 
 One list of 23 scenes, plus every bundled MilkDrop preset. Press **T** (or the Retro button) to toggle the **Retro look** for whatever is playing:
 
-- **GPU scenes** render at about 320×200, dithered to the Retro palette: a green, amber or ice-blue monochrome monitor, or 64-color VGA.
+- **GPU scenes** switch to a classic-era counterpart built the way 2000s visualizers were: Canvas 2D at 320×200 with palettes and hard pixels.
+
+  | GPU scene | Retro counterpart |
+  | --- | --- |
+  | MilkDrop presets | The same preset at low resolution in 16-bit color, as 2001 hardware ran it |
+  | Warp tunnel | The demoscene lookup-table tunnel |
+  | Spectrum grid | A wireframe 3D spectrum landscape under a striped sun |
+  | Kaleidoscope bloom | A mirrored feedback effect |
+  | Liquid blobs | 2D palette metaballs |
+  | Nebula drift | Palette-cycled cloud noise with stars |
+  | Black hole | A particle accretion disk with a lensed arc |
+  | Ringed planet | A shaded sphere with spectrum-density rings |
+  | Hyperspace | A warp starfield |
+  | Digital rain | Bitmap glyph rain |
+
 - **Canvas scenes** switch between crisp pixels (Retro on) and a smooth, glowing upscale (Retro off).
+
+The **Retro palette** setting defaults to **Scene colors**, which gives each scene its own natural colors (fire for Flame fountain, ember for Black hole, and so on). Pick green phosphor, amber, ice blue or VGA rainbow to recolor every canvas scene and counterpart.
+
+| Regular | Retro |
+| --- | --- |
+| ![Black hole](docs/screenshots/look-blackhole-hd.jpg) | ![Black hole, Retro](docs/screenshots/look-blackhole-retro.jpg) |
+| ![Spectrum grid](docs/screenshots/look-grid-hd.jpg) | ![Spectrum grid, Retro](docs/screenshots/look-grid-retro.jpg) |
+| ![Ringed planet](docs/screenshots/look-planet-hd.jpg) | ![Ringed planet, Retro](docs/screenshots/look-planet-retro.jpg) |
 
 The scenes:
 
@@ -30,7 +52,7 @@ The scenes:
   - Fire, Starfield, Palette plasma and Lissajous XY.
   - Feedback effects in the style of classic player visualization studios: Scope trails, Ring scope, Dot fountain, Dot plane, Flame fountain, Ripple and Spectrogram.
 
-Every scene works with every source: the demo synth, local files (with a queue), the microphone, or another browser tab's audio. Without WebGL 2, the app runs the canvas scenes with the Retro look locked on.
+Every scene works with every source: the demo synth, local files (with a queue), the microphone, or another browser tab's audio. Without WebGL 2, the Retro look is locked on: every scene except MilkDrop presets still plays, through its canvas version.
 
 ## Controls
 
@@ -87,9 +109,9 @@ Source (demo | file | mic | tab)
 | Path | What it is |
 | --- | --- |
 | `src/audio/` | `AudioEngine` (one AudioContext, master, vizBus, analyser), `analyzer.ts` (AudioFrame), `beat.ts` (pure onset detector), `sources/` |
-| `src/render/` | `Engine` (one rAF loop, canvas per renderer, 400 ms crossfade, adaptive quality, context-loss recovery), `registry.ts` (lazy loaders), `retroLook.ts` (renders any GPU scene in the Retro look) |
+| `src/render/` | `Engine` (one rAF loop, canvas per renderer, 400 ms crossfade, adaptive quality, context-loss recovery), `registry.ts` (lazy loaders and Retro counterparts), `retroLook.ts` (low-res fallback for GPU scenes without a counterpart) |
 | `src/render/gl/` | `ShaderScene` runner, data textures, ping-pong feedback buffers |
-| `src/render/renderers/` | `butterchurn/`, `shader/*.frag`, `retro/*.ts` |
+| `src/render/renderers/` | `butterchurn/`, `shader/*.frag`, `retro/*.ts` (canvas scenes), `retro/classic/*.ts` (Retro counterparts of the shader scenes) |
 | `src/state/` | Zustand store, persisted to localStorage through a try/catch wrapper |
 | `src/app/controller.ts` | Plain-TS glue between store, audio and engine; React calls into it |
 | `src/ui/` | Player window (`Deck`, `Display`, seven-segment clock, mini analyzer, marquee, `useDraggable`), scene list, settings, help, `skin.css` |
@@ -101,4 +123,4 @@ The audio and render code has no React imports.
 - **Shader:** add `src/render/renderers/shader/<id>.frag`, a config in `shader/index.ts`, and an entry in `registry.ts`. The runner prepends the uniforms (`uTime`, `uResolution`, `uBass`, `uMid`, `uTreble`, `uRms`, `uBeat`, `uFlash`, `uTravel`, `uFreq`, `uWave`, `uPrev`) and the helpers `freqAt(x)` and `waveAt(x)`. Multiply any beat flash by `uFlash`.
 - **Canvas:** extend `RetroScene` with an internal `W` and `H`, do simulation work in `step()` (fixed 30 Hz), and use `this.palette` for colors. Check `this.flashAllowed` before any strobe-like effect. For trails and feedback, draw into a `PixelBuffer` (`retro/fx.ts`): `move()` (zoom and rotate), `blur()` and `fade()`, then `line()` and `dot()`. Use `beatOnset()` to react once per beat.
 
-The Retro look needs nothing extra: GPU scenes get it through `RetroLook`, and canvas scenes switch between crisp and smooth scaling on their own.
+For the Retro look, give a shader scene a classic counterpart: a `RetroScene` in `retro/classic/`, registered as the third argument to `shader()` in `registry.ts`. Without one it falls back to `RetroLook` (low-res and dithered). Set `natural` on any `RetroScene` to choose its Scene colors. Canvas scenes switch between crisp and smooth scaling on their own.

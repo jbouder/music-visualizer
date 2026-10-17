@@ -63,9 +63,10 @@ export function Settings() {
       <div className="field">
         <label htmlFor="set-palette">
           Retro palette
-          <small>Colors the canvas scenes and the Retro look.</small>
+          <small>Scene colors lets each scene keep its own colors.</small>
         </label>
         <select id="set-palette" className="select" value={s.palette} onChange={(e) => setState({ palette: e.target.value as typeof s.palette })}>
+          <option value="auto">Scene colors</option>
           {PALETTE_IDS.map((id) => (
             <option key={id} value={id}>
               {PALETTES[id].name}

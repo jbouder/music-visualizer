@@ -1,4 +1,5 @@
 import type { AudioFrame } from '../../../audio/types';
+import { SCENE_PALETTES } from './palettes';
 import { RETRO_STEP, RetroScene } from './RetroScene';
 
 /** Water ripples over a palette pattern. Beats drop stones, treble adds rain, the waveform stirs the surface. */
@@ -7,6 +8,7 @@ export class RippleScene extends RetroScene {
   readonly name = 'Ripple';
   protected readonly W = 200;
   protected readonly H = 150;
+  protected natural = SCENE_PALETTES.water;
 
   private cur = new Int16Array(0);
   private prev = new Int16Array(0);

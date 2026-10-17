@@ -21,6 +21,6 @@ const CONFIGS: Record<string, ShaderSceneConfig> = {
   rain: { id: 'rain', name: 'Digital rain', frag: rain, travelSpeed: (b) => 0.35 + b.bass * 1.2 },
 };
 
-export function createShaderScene(id: keyof typeof CONFIGS): ShaderScene {
+export function createShaderScene(id: string): ShaderScene {
   return new ShaderScene(CONFIGS[id]);
 }

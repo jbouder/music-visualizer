@@ -1,9 +1,9 @@
-import type { PaletteId } from '../../Renderer';
+import type { PaletteChoice, PaletteId } from '../../Renderer';
 
 type Stop = [number, string];
 
 export interface Palette {
-  id: PaletteId;
+  id: string;
   name: string;
   bg: string;
   /** Main trace / foreground color. */
@@ -94,3 +94,48 @@ export const PALETTES: Record<PaletteId, Palette> = {
 };
 
 export const PALETTE_IDS = Object.keys(PALETTES) as PaletteId[];
+
+function makePalette(id: string, name: string, bg: string, fg: string, dim: string, heat: Stop[], cycle: Stop[], meter: Stop[]): Palette {
+  return { id, name, bg, fg, dim, heat: buildLut(heat), cycle: buildLut(cycle), meter: buildLut(meter) };
+}
+
+/** Each scene's own colors, used when the palette setting is Scene colors. */
+export const SCENE_PALETTES = {
+  fire: makePalette('fire', 'Fire', '#000000', '#ffd060', '#2a0a00',
+    [[0, '#000000'], [0.3, '#8a0a00'], [0.55, '#ff4a00'], [0.8, '#ffc020'], [1, '#ffffff']],
+    [[0, '#300000'], [0.25, '#c02000'], [0.5, '#ffd060'], [0.75, '#c02000'], [1, '#300000']],
+    [[0, '#a01000'], [0.6, '#ff6a00'], [1, '#ffe080']]),
+  ember: makePalette('ember', 'Ember', '#030104', '#ffe6c0', '#2a1206',
+    [[0, '#000000'], [0.3, '#5a1404'], [0.6, '#ff6a18'], [0.85, '#ffd8a0'], [1, '#ffffff']],
+    [[0, '#1a0602'], [0.25, '#b03a08'], [0.5, '#ffd8a0'], [0.75, '#b03a08'], [1, '#1a0602']],
+    [[0, '#7a2008'], [0.6, '#ff7a20'], [1, '#fff0d0']]),
+  sunset: makePalette('sunset', 'Sunset', '#0a0214', '#ff4fd8', '#2a0a3a',
+    [[0, '#0a0214'], [0.3, '#5a0a6a'], [0.6, '#ff2fa8'], [0.85, '#ffb040'], [1, '#fff6c0']],
+    [[0, '#1a0430'], [0.25, '#c01890'], [0.5, '#ffd060'], [0.75, '#20c0ff'], [1, '#1a0430']],
+    [[0, '#ff2fa8'], [0.6, '#ff8040'], [1, '#fff060']]),
+  nebula: makePalette('nebula', 'Nebula', '#040210', '#e0c0ff', '#1a0c30',
+    [[0, '#020108'], [0.3, '#2a0c5a'], [0.55, '#9a2aa8'], [0.8, '#ff7ab0'], [1, '#fff0e0']],
+    [[0, '#0a0420'], [0.25, '#4030c0'], [0.5, '#e050b0'], [0.75, '#ff9a50'], [1, '#0a0420']],
+    [[0, '#4030c0'], [0.6, '#e050b0'], [1, '#ffd0e8']]),
+  planet: makePalette('planet', 'Planet', '#05060c', '#f0e0c0', '#202430',
+    [[0, '#000000'], [0.3, '#3a2414'], [0.6, '#b08050'], [0.85, '#e8d0a8'], [1, '#fffaf0']],
+    [[0, '#3a2414'], [0.25, '#b08050'], [0.5, '#f0e0c0'], [0.75, '#b08050'], [1, '#3a2414']],
+    [[0, '#806040'], [0.6, '#d0b080'], [1, '#fff0d0']]),
+  water: makePalette('water', 'Water', '#000814', '#9ae8ff', '#06223a',
+    [[0, '#000000'], [0.3, '#062a5a'], [0.6, '#1a90c8'], [0.85, '#9ae8ff'], [1, '#ffffff']],
+    [[0, '#02122a'], [0.25, '#0a5a9a'], [0.5, '#9ae8ff'], [0.75, '#20a090'], [1, '#02122a']],
+    [[0, '#0a5a9a'], [0.6, '#30c0e0'], [1, '#e0fbff']]),
+  tunnel: makePalette('tunnel', 'Tunnel', '#020a0c', '#8affe0', '#0a2a2a',
+    [[0, '#000000'], [0.35, '#0a4a4a'], [0.7, '#30e0c0'], [1, '#f0fff0']],
+    [[0, '#1aa8a0'], [0.25, '#50f0c8'], [0.45, '#c8e060'], [0.65, '#9050c8'], [0.85, '#3070c0'], [1, '#1aa8a0']],
+    [[0, '#1aa8a0'], [0.6, '#c8e060'], [1, '#ffffff']]),
+  rain: makePalette('rain', 'Rain', '#000600', '#c8ffc8', '#032a08',
+    [[0, '#000000'], [0.35, '#04400c'], [0.7, '#20e048'], [0.92, '#a8ffb8'], [1, '#ffffff']],
+    [[0, '#011a04'], [0.25, '#0a8020'], [0.5, '#a8ffb8'], [0.75, '#0a8020'], [1, '#011a04']],
+    [[0, '#0a8020'], [0.6, '#20e048'], [1, '#d0ffd8']]),
+};
+
+/** The palette a scene draws with: the user's pick, or the scene's own colors for 'auto'. */
+export function resolvePalette(choice: PaletteChoice, natural: Palette): Palette {
+  return choice === 'auto' ? natural : (PALETTES[choice] ?? natural);
+}

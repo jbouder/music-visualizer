@@ -3,6 +3,8 @@ import type { AudioFrame } from '../audio/types';
 /** How a scene is drawn natively: WebGL 2 ('gpu') or low-res Canvas 2D ('retro'). */
 export type Family = 'gpu' | 'retro';
 export type PaletteId = 'green' | 'amber' | 'ice' | 'vga';
+/** 'auto' lets each scene use its own natural colors. */
+export type PaletteChoice = PaletteId | 'auto';
 
 /** Shared, live-updated context. Renderers read it every frame rather than caching values. */
 export interface RenderContext {
@@ -13,7 +15,7 @@ export interface RenderContext {
   reduceFlashing: boolean;
   /** Low-res, limited-palette look. Off lets canvas scenes scale smoothly with a glow. */
   retroLook: boolean;
-  palette: PaletteId;
+  palette: PaletteChoice;
   /** Per-renderer option values from the settings sheet, keyed by renderer id. */
   options: Record<string, Record<string, string>>;
 }

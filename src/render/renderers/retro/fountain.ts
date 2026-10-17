@@ -1,6 +1,7 @@
 import type { AudioFrame } from '../../../audio/types';
 import { logBinRanges } from './bars';
 import { PixelBuffer } from './fx';
+import { PALETTES } from './palettes';
 import { RETRO_STEP, RetroScene } from './RetroScene';
 
 const MAX = 4000;
@@ -13,6 +14,7 @@ export class FountainScene extends RetroScene {
   readonly name = 'Dot fountain';
   protected readonly W = 320;
   protected readonly H = 200;
+  protected natural = PALETTES.vga;
 
   private fb!: PixelBuffer;
   private ranges: [number, number][] = [];

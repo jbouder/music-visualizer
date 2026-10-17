@@ -1,4 +1,5 @@
 import type { AudioFrame } from '../../../audio/types';
+import { SCENE_PALETTES } from './palettes';
 import { RetroScene } from './RetroScene';
 
 const LO_HZ = 40;
@@ -12,6 +13,7 @@ export class SpectrogramScene extends RetroScene {
   readonly name = 'Spectrogram';
   protected readonly W = 320;
   protected readonly H = 180;
+  protected natural = SCENE_PALETTES.fire;
 
   private column: ImageData | null = null;
   private colPx = new Uint32Array(0);

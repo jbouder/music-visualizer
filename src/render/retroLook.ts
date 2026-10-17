@@ -1,6 +1,6 @@
 import type { AudioFrame } from '../audio/types';
 import type { PresetInfo, RenderContext, Renderer } from './Renderer';
-import { PALETTES, type Palette } from './renderers/retro/palettes';
+import { PALETTES, resolvePalette, type Palette } from './renderers/retro/palettes';
 
 /** About 320 x 200 worth of pixels, whatever the aspect ratio. */
 const TARGET_PIXELS = 64000;
@@ -35,9 +35,22 @@ export function quantize(px: Uint32Array, width: number, palette: Palette): void
   }
 }
 
+/** 16-bit (5-6-5) color with no dithering, as 2001-era hardware drew it. */
+export function to16Bit(px: Uint32Array): void {
+  for (let i = 0; i < px.length; i++) px[i] = (px[i] & 0xfff8fcf8) | 0xff000000;
+}
+
+export interface RetroLookOptions {
+  /** Keep the scene's own colors at 16-bit instead of mapping to a palette. */
+  native?: boolean;
+  /** Internal resolution in pixels (aspect follows the screen). */
+  pixels?: number;
+}
+
 /**
  * Wraps a GPU scene so it renders in the Retro look: drawn small on a hidden
- * canvas, quantized to the palette at 30 Hz, then scaled up with hard pixels.
+ * canvas, reduced to 16-bit color or quantized to the palette at 30 Hz, then
+ * scaled up with hard pixels. Scenes with a classic counterpart use that instead.
  */
 export class RetroLook implements Renderer {
   readonly family = 'retro';
@@ -51,7 +64,10 @@ export class RetroLook implements Renderer {
   private h = 1;
   private dirty = false;
 
-  constructor(readonly inner: Renderer) {}
+  constructor(
+    readonly inner: Renderer,
+    private readonly opts: RetroLookOptions = {},
+  ) {}
 
   get id(): string {
     return this.inner.id;
@@ -84,7 +100,7 @@ export class RetroLook implements Renderer {
     if (!this.out) return;
     this.out.canvas.width = Math.max(1, Math.round(width * pixelRatio));
     this.out.canvas.height = Math.max(1, Math.round(height * pixelRatio));
-    const k = Math.min(1, Math.sqrt(TARGET_PIXELS / Math.max(1, width * height)));
+    const k = Math.min(1, Math.sqrt((this.opts.pixels ?? TARGET_PIXELS) / Math.max(1, width * height)));
     this.w = Math.max(16, Math.round(width * k));
     this.h = Math.max(16, Math.round(height * k));
     this.buf.width = this.w;
@@ -102,7 +118,9 @@ export class RetroLook implements Renderer {
       this.acc = 0;
       g.drawImage(this.src, 0, 0, this.w, this.h);
       const img = g.getImageData(0, 0, this.w, this.h);
-      quantize(new Uint32Array(img.data.buffer), this.w, PALETTES[rc.palette] ?? PALETTES.green);
+      const px = new Uint32Array(img.data.buffer);
+      if (this.opts.native) to16Bit(px);
+      else quantize(px, this.w, resolvePalette(rc.palette, PALETTES.green));
       g.putImageData(img, 0, 0);
       this.dirty = true;
     }
