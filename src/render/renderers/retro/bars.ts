@@ -1,4 +1,6 @@
 import type { AudioFrame } from '../../../audio/types';
+import { optionValue, type OptionSchema } from '../../Renderer';
+import { getScene } from '../../registry';
 import { lutCss } from './palettes';
 import { RetroScene } from './RetroScene';
 
@@ -29,6 +31,7 @@ export function logBinRanges(bars: number, binCount: number, sampleRate: number,
 export class BarsScene extends RetroScene {
   readonly id = 'bars';
   readonly name = 'Spectrum bars';
+  readonly options: OptionSchema = getScene('bars')!.options!;
   protected readonly W = 152;
   protected readonly H = 64;
 
@@ -83,13 +86,18 @@ export class BarsScene extends RetroScene {
       g.globalAlpha = 1;
     }
 
+    // Normal: color by segment height. Fire: hottest at each bar's top. Line: one color per bar.
+    const style = optionValue(this.rc, this.id, this.options, 'style');
     const x0 = Math.floor((this.W - (BARS * PITCH - (PITCH - BAR_W))) / 2);
     const base = this.H - 2;
     for (let i = 0; i < BARS; i++) {
       const x = x0 + i * PITCH;
       const h = Math.floor(this.heights[i]);
       for (let s = 0; s < SEGS; s++) {
-        g.fillStyle = s < h ? this.lit[s] : this.unlit;
+        if (s >= h) g.fillStyle = this.unlit;
+        else if (style === 'fire') g.fillStyle = this.lit[SEGS - h + s];
+        else if (style === 'line') g.fillStyle = this.lit[h - 1];
+        else g.fillStyle = this.lit[s];
         g.fillRect(x, base - s * SEG_H, BAR_W, 1);
       }
       const pk = Math.floor(this.peaks[i]);

@@ -21,7 +21,23 @@ export const SCENES: SceneEntry[] = [
   { id: 'grid', name: 'Spectrum grid', family: 'gpu', load: async () => (await import('./renderers/shader')).createShaderScene('grid') },
   { id: 'kaleido', name: 'Kaleidoscope bloom', family: 'gpu', load: async () => (await import('./renderers/shader')).createShaderScene('kaleido') },
   { id: 'blobs', name: 'Liquid blobs', family: 'gpu', load: async () => (await import('./renderers/shader')).createShaderScene('blobs') },
-  { id: 'bars', name: 'Spectrum bars', family: 'retro', load: async () => new (await import('./renderers/retro/bars')).BarsScene() },
+  {
+    id: 'bars',
+    name: 'Spectrum bars',
+    family: 'retro',
+    options: {
+      style: {
+        label: 'Coloring',
+        default: 'normal',
+        choices: [
+          { value: 'normal', label: 'Normal' },
+          { value: 'fire', label: 'Fire' },
+          { value: 'line', label: 'Line' },
+        ],
+      },
+    },
+    load: async () => new (await import('./renderers/retro/bars')).BarsScene(),
+  },
   {
     id: 'scope',
     name: 'Oscilloscope',
@@ -33,6 +49,7 @@ export const SCENES: SceneEntry[] = [
         choices: [
           { value: 'line', label: 'Line' },
           { value: 'dots', label: 'Dots' },
+          { value: 'solid', label: 'Solid' },
         ],
       },
     },
@@ -42,6 +59,12 @@ export const SCENES: SceneEntry[] = [
   { id: 'starfield', name: 'Starfield', family: 'retro', load: async () => new (await import('./renderers/retro/starfield')).StarfieldScene() },
   { id: 'plasma', name: 'Palette plasma', family: 'retro', load: async () => new (await import('./renderers/retro/plasma')).PlasmaScene() },
   { id: 'lissajous', name: 'Lissajous XY', family: 'retro', load: async () => new (await import('./renderers/retro/lissajous')).LissajousScene() },
+  { id: 'trails', name: 'Scope trails', family: 'retro', load: async () => new (await import('./renderers/retro/trails')).TrailsScene() },
+  { id: 'ring', name: 'Ring scope', family: 'retro', load: async () => new (await import('./renderers/retro/ring')).RingScene() },
+  { id: 'fountain', name: 'Dot fountain', family: 'retro', load: async () => new (await import('./renderers/retro/fountain')).FountainScene() },
+  { id: 'plane', name: 'Dot plane', family: 'retro', load: async () => new (await import('./renderers/retro/plane')).PlaneScene() },
+  { id: 'ripple', name: 'Ripple', family: 'retro', load: async () => new (await import('./renderers/retro/ripple')).RippleScene() },
+  { id: 'spectrogram', name: 'Spectrogram', family: 'retro', load: async () => new (await import('./renderers/retro/spectrogram')).SpectrogramScene() },
 ];
 
 export const DEFAULT_SCENE: Record<Family, string> = { gpu: 'butterchurn', retro: 'bars' };

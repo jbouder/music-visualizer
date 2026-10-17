@@ -25,6 +25,7 @@ export abstract class RetroScene implements Renderer {
   private acc = 0;
   private rect = { x: 0, y: 0, w: 1, h: 1 };
   private lastPalette = '';
+  private lastBeat = 0;
 
   init(canvas: HTMLCanvasElement, rc: RenderContext): void {
     this.rc = rc;
@@ -89,6 +90,16 @@ export abstract class RetroScene implements Renderer {
   /** False when Reduce flashing is on: skip strobe-like beat effects. */
   protected get flashAllowed(): boolean {
     return !this.rc.reduceFlashing;
+  }
+
+  /**
+   * True on the first step after a beat onset. Call at most once per step:
+   * several steps can run on the same frame.
+   */
+  protected beatOnset(frame: AudioFrame): boolean {
+    const onset = frame.beat > this.lastBeat + 0.5;
+    this.lastBeat = frame.beat;
+    return onset;
   }
 
   protected setup(): void {}

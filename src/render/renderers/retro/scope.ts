@@ -40,10 +40,18 @@ export class ScopeScene extends RetroScene {
     const wave = frame.wave;
     const start = findTrigger(wave, SPAN);
     const amp = H * 0.45;
-    const dots = optionValue(this.rc, this.id, this.options, 'mode') === 'dots';
+    const mode = optionValue(this.rc, this.id, this.options, 'mode');
     g.fillStyle = g.strokeStyle = p.fg;
 
-    if (dots) {
+    if (mode === 'solid') {
+      // Filled from the center line, one column per pixel.
+      for (let x = 0; x < W; x++) {
+        const y = H / 2 - ((wave[start + ((x / W) * SPAN) | 0] - 128) / 128) * amp;
+        g.fillRect(x, Math.min(y, H / 2), 1, Math.max(1, Math.abs(y - H / 2)));
+      }
+      return;
+    }
+    if (mode === 'dots') {
       for (let j = 0; j < SPAN; j += 3) {
         const x = (j / SPAN) * W;
         const y = H / 2 - ((wave[start + j] - 128) / 128) * amp;

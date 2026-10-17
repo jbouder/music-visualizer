@@ -6,9 +6,12 @@ import { buildLut } from '../../src/render/renderers/retro/palettes';
 import { findTrigger } from '../../src/render/renderers/retro/scope';
 
 describe('registry', () => {
-  it('ships 5 GPU entries (Butterchurn + 4 shaders) and 6 Retro scenes', () => {
+  it('ships 5 GPU entries (Butterchurn + 4 shaders) and 12 Retro scenes', () => {
     expect(scenesFor('gpu').map((s) => s.id)).toEqual(['butterchurn', 'tunnel', 'grid', 'kaleido', 'blobs']);
-    expect(scenesFor('retro').map((s) => s.id)).toEqual(['bars', 'scope', 'fire', 'starfield', 'plasma', 'lissajous']);
+    expect(scenesFor('retro').map((s) => s.id)).toEqual([
+      'bars', 'scope', 'fire', 'starfield', 'plasma', 'lissajous',
+      'trails', 'ring', 'fountain', 'plane', 'ripple', 'spectrogram',
+    ]);
   });
 
   it('has unique ids', () => {

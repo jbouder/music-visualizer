@@ -3,7 +3,9 @@
 A browser music visualizer in the spirit of 2000s media players. It has two scene families:
 
 - **GPU:** every bundled MilkDrop preset via Butterchurn, plus four WebGL 2 shader scenes: Warp tunnel, Spectrum grid, Kaleidoscope bloom and Liquid blobs.
-- **Retro:** six low-resolution Canvas 2D scenes: Spectrum bars, Oscilloscope, Fire, Starfield, Palette plasma and Lissajous XY. Each takes one of four palettes.
+- **Retro:** twelve low-resolution Canvas 2D scenes, each taking one of four palettes:
+  - The spec's six: Spectrum bars (Normal, Fire and Line coloring), Oscilloscope (Line, Dots and Solid traces), Fire, Starfield, Palette plasma and Lissajous XY.
+  - Six feedback effects in the style of classic media-player visualization studios: Scope trails, Ring scope, Dot fountain, Dot plane, Ripple and Spectrogram.
 
 It's a static site with no backend and no accounts. Open it, press **Play demo**, and it starts within a second.
 
@@ -58,7 +60,7 @@ The audio and render code has no React imports.
 ### Adding a scene
 
 - **Shader:** add `src/render/renderers/shader/<id>.frag`, a config in `shader/index.ts`, and an entry in `registry.ts`. The runner prepends the uniforms (`uTime`, `uResolution`, `uBass`, `uMid`, `uTreble`, `uRms`, `uBeat`, `uFlash`, `uTravel`, `uFreq`, `uWave`, `uPrev`) and the helpers `freqAt(x)` and `waveAt(x)`. Multiply any beat flash by `uFlash`.
-- **Retro:** extend `RetroScene` with an internal `W` and `H`, do simulation work in `step()` (fixed 30 Hz), and use `this.palette` for colors. Check `this.flashAllowed` before any strobe-like effect.
+- **Retro:** extend `RetroScene` with an internal `W` and `H`, do simulation work in `step()` (fixed 30 Hz), and use `this.palette` for colors. Check `this.flashAllowed` before any strobe-like effect. For trails and feedback, draw into a `PixelBuffer` (`retro/fx.ts`): `move()` (zoom and rotate), `blur()` and `fade()`, then `line()` and `dot()`. Use `beatOnset()` to react once per beat.
 
 ## Decisions beyond the spec
 

@@ -34,7 +34,7 @@ test('plays the demo in GPU mode with one tap, then switches to Retro', async ({
   await expect(page).toHaveURL(/#r=bars$/);
 
   // Walk every Retro scene, then every GPU scene.
-  for (let i = 0; i < 6; i++) await page.locator('body').press('n');
+  for (let i = 0; i < 12; i++) await page.locator('body').press('n');
   await expect(page.locator('canvas[data-scene="bars"]')).toBeVisible();
   await page.locator('body').press('t');
   for (const id of ['tunnel', 'grid', 'kaleido', 'blobs']) {
@@ -63,7 +63,7 @@ test('switching scenes 50 times leaves one canvas, no errors and no heap growth'
     return metrics.find((m) => m.name === 'JSHeapUsedSize')!.value;
   };
   // Warm up: load every scene once so lazy chunks and preset packs are in the baseline.
-  for (const id of ['tunnel', 'grid', 'kaleido', 'blobs', 'butterchurn', 'bars', 'scope', 'fire', 'starfield', 'plasma', 'lissajous']) {
+  for (const id of ['tunnel', 'grid', 'kaleido', 'blobs', 'butterchurn', 'bars', 'scope', 'fire', 'starfield', 'plasma', 'lissajous', 'trails', 'ring', 'fountain', 'plane', 'ripple', 'spectrogram']) {
     await page.evaluate((id) => (location.hash = `r=${id}`), id);
     await expect(page.locator(`canvas[data-scene="${id}"]`)).toBeVisible({ timeout: 15_000 });
   }
