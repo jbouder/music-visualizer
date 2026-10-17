@@ -18,7 +18,7 @@ function usePlayback() {
 export function Display() {
   const s = useStore();
   const { elapsed } = usePlayback();
-  const ref = s.scenes[s.mode];
+  const ref = s.scene;
   const starred = s.favorites.some((f) => f.rendererId === ref.rendererId && (f.presetId ?? '') === (ref.presetId ?? ''));
   const scale = s.quality === 'auto' ? s.autoScale : s.quality;
   const state = !s.source ? 'stop' : s.paused ? 'pause' : 'play';
@@ -47,8 +47,8 @@ export function Display() {
           <span className="field-label">qual</span>
           <span className="field-box">{s.autoCycle ? s.cycleInterval : '--'}</span>
           <span className="field-label">sec</span>
-          <span className="lamp" data-on={s.mode === 'gpu'}>gpu</span>
-          <span className="lamp" data-on={s.mode === 'retro'}>retro</span>
+          <span className="lamp" data-on={!s.retroLook}>hd</span>
+          <span className="lamp" data-on={s.retroLook}>retro</span>
           <span className="lamp" data-on={starred}>★</span>
         </div>
       </div>

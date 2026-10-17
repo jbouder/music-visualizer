@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from 'react';
 import { controller } from '../app/controller';
-import { scenesFor } from '../render/registry';
+import type { SceneEntry } from '../render/registry';
 import { isFavorite, setState, useStore } from '../state/store';
 import { Sheet } from './Sheet';
 
@@ -12,13 +12,14 @@ export function ScenePicker() {
   const [query, setQuery] = useState('');
   const search = useRef<HTMLInputElement>(null);
   const close = () => setState({ panel: 'none', searchFocused: false });
-  const current = s.scenes[s.mode];
+  const current = s.scene;
   const q = query.trim().toLowerCase();
 
-  const scenes = scenesFor(s.mode).filter((e) => !q || e.name.toLowerCase().includes(q));
-  const favorites = s.favorites.filter((f) => scenesFor(s.mode).some((e) => e.id === f.rendererId));
+  const all: SceneEntry[] = controller.available();
+  const scenes = all.filter((e) => !q || e.name.toLowerCase().includes(q));
+  const favorites = s.favorites.filter((f) => all.some((e) => e.id === f.rendererId));
   const presets = useMemo(() => (q ? s.presets.filter((p) => p.name.toLowerCase().includes(q)) : s.presets), [s.presets, q]);
-  const showPresets = s.mode === 'gpu';
+  const showPresets = s.webgl2;
 
   const pick = (rendererId: string, presetId?: string) => {
     void controller.selectScene(rendererId, presetId);
@@ -26,7 +27,7 @@ export function ScenePicker() {
   };
 
   return (
-    <Sheet title={s.mode === 'gpu' ? 'GPU scene list' : 'Retro scene list'} onClose={close} variant="dropdown" initialFocus={search}>
+    <Sheet title="Scene list" onClose={close} variant="dropdown" initialFocus={search}>
       <label className="sr-only" htmlFor="scene-search">
         Search scenes
       </label>
@@ -73,7 +74,7 @@ export function ScenePicker() {
               <li key={`${f.rendererId}/${f.presetId ?? ''}`}>
                 <button type="button" className="item" onClick={() => pick(f.rendererId, f.presetId)}>
                   <span className="star" aria-hidden="true">★</span>
-                  <span className="name">{f.presetId ?? scenesFor(s.mode).find((e) => e.id === f.rendererId)?.name}</span>
+                  <span className="name">{f.presetId ?? all.find((e) => e.id === f.rendererId)?.name}</span>
                 </button>
               </li>
             ))}

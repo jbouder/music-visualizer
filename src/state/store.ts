@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import type { SourceKind } from '../audio/sources/types';
-import type { Family, PaletteId } from '../render/Renderer';
+import type { PaletteId } from '../render/Renderer';
 import { DEFAULT_SCENE } from '../render/registry';
 import { createSafeStorage, prefersReducedMotion } from './persistence';
 
@@ -16,9 +16,9 @@ export interface SceneRef {
 export const MAX_FAVORITES = 200;
 
 export interface Settings {
-  mode: Family;
-  /** Last scene per mode. */
-  scenes: Record<Family, SceneRef>;
+  /** Render the current scene with the low-res, limited-palette Retro look. */
+  retroLook: boolean;
+  scene: SceneRef;
   autoCycle: boolean;
   cycleInterval: CycleInterval;
   favoritesOnly: boolean;
@@ -62,8 +62,8 @@ export type State = Settings & Runtime;
 
 export function defaultSettings(reducedMotion = prefersReducedMotion()): Settings {
   return {
-    mode: 'gpu',
-    scenes: { gpu: { rendererId: DEFAULT_SCENE.gpu }, retro: { rendererId: DEFAULT_SCENE.retro } },
+    retroLook: false,
+    scene: { rendererId: DEFAULT_SCENE.gpu },
     autoCycle: !reducedMotion,
     cycleInterval: 20,
     favoritesOnly: false,
@@ -108,14 +108,23 @@ export function toggleFavorite(list: SceneRef[], ref: SceneRef): SceneRef[] {
   return [...list, clean].slice(-MAX_FAVORITES);
 }
 
+/** v1 kept a mode and a scene per mode; v2 keeps one scene and a Retro look flag. */
+export function migrateSettings(persisted: Record<string, unknown>, version: number): Partial<Settings> {
+  if (version >= 2 || !persisted) return persisted as Partial<Settings>;
+  const { mode, scenes, ...rest } = persisted as { mode?: 'gpu' | 'retro'; scenes?: Record<string, SceneRef> };
+  const scene = (mode && scenes?.[mode]) || { rendererId: DEFAULT_SCENE.gpu };
+  return { ...(rest as Partial<Settings>), retroLook: mode === 'retro', scene };
+}
+
 export const useStore = create<State>()(
   persist((): State => ({ ...defaultSettings(), ...initialRuntime }), {
     name: 'music-visualizer:v1',
-    version: 1,
+    version: 2,
+    migrate: (persisted, version) => migrateSettings(persisted as Record<string, unknown>, version),
     storage: createJSONStorage(() => createSafeStorage()),
     partialize: (s): Settings => ({
-      mode: s.mode,
-      scenes: s.scenes,
+      retroLook: s.retroLook,
+      scene: s.scene,
       autoCycle: s.autoCycle,
       cycleInterval: s.cycleInterval,
       favoritesOnly: s.favoritesOnly,

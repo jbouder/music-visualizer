@@ -1,14 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { formatHash, parseHash } from '../../src/app/deeplink';
 import { createSafeStorage } from '../../src/state/persistence';
-import { MAX_FAVORITES, defaultSettings, isFavorite, toggleFavorite, type SceneRef } from '../../src/state/store';
+import { MAX_FAVORITES, defaultSettings, isFavorite, migrateSettings, toggleFavorite, type SceneRef } from '../../src/state/store';
 
 describe('defaultSettings', () => {
-  it('opens in GPU mode with Butterchurn and Spectrum bars remembered per mode', () => {
+  it('opens on MilkDrop presets with the Retro look off', () => {
     const s = defaultSettings(false);
-    expect(s.mode).toBe('gpu');
-    expect(s.scenes.gpu.rendererId).toBe('butterchurn');
-    expect(s.scenes.retro.rendererId).toBe('bars');
+    expect(s.retroLook).toBe(false);
+    expect(s.scene).toEqual({ rendererId: 'butterchurn' });
     expect(s.autoCycle).toBe(true);
     expect(s.cycleInterval).toBe(20);
     expect(s.quality).toBe('auto');
@@ -21,6 +20,19 @@ describe('defaultSettings', () => {
     const s = defaultSettings(true);
     expect(s.reduceFlashing).toBe(true);
     expect(s.autoCycle).toBe(false);
+  });
+});
+
+describe('migrateSettings', () => {
+  it('turns v1 mode and per-mode scenes into one scene and the Retro look', () => {
+    const v1 = { mode: 'retro', scenes: { gpu: { rendererId: 'tunnel' }, retro: { rendererId: 'fire' } }, volume: 0.5 };
+    expect(migrateSettings(v1, 1)).toEqual({ volume: 0.5, retroLook: true, scene: { rendererId: 'fire' } });
+    expect(migrateSettings({ mode: 'gpu', scenes: { gpu: { rendererId: 'tunnel' } } }, 1)).toMatchObject({ retroLook: false, scene: { rendererId: 'tunnel' } });
+  });
+
+  it('leaves v2 settings alone', () => {
+    const v2 = { retroLook: true, scene: { rendererId: 'grid' } };
+    expect(migrateSettings(v2, 2)).toBe(v2);
   });
 });
 
@@ -61,6 +73,12 @@ describe('deep links', () => {
   it('round-trips a preset name with spaces and symbols', () => {
     const ref = { rendererId: 'butterchurn', presetId: 'Geiss + Rovastar - The Chaos Of Colours (sprouting dimentia mix)' };
     expect(parseHash(formatHash(ref))).toEqual(ref);
+  });
+
+  it('carries the Retro look', () => {
+    expect(formatHash({ rendererId: 'planet' }, true)).toBe('#r=planet&retro=1');
+    expect(parseHash('#r=planet&retro=1')).toEqual({ rendererId: 'planet', retro: true });
+    expect(parseHash('#r=planet&retro=0')).toEqual({ rendererId: 'planet', retro: false });
   });
 
   it('ignores empty or unrelated hashes', () => {

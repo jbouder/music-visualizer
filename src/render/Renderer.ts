@@ -1,5 +1,6 @@
 import type { AudioFrame } from '../audio/types';
 
+/** How a scene is drawn natively: WebGL 2 ('gpu') or low-res Canvas 2D ('retro'). */
 export type Family = 'gpu' | 'retro';
 export type PaletteId = 'green' | 'amber' | 'ice' | 'vga';
 
@@ -10,6 +11,8 @@ export interface RenderContext {
   /** Render scale: 1, 0.75 or 0.5. */
   quality: number;
   reduceFlashing: boolean;
+  /** Low-res, limited-palette look. Off lets canvas scenes scale smoothly with a glow. */
+  retroLook: boolean;
   palette: PaletteId;
   /** Per-renderer option values from the settings sheet, keyed by renderer id. */
   options: Record<string, Record<string, string>>;

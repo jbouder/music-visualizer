@@ -5,8 +5,8 @@ import { Sheet } from './Sheet';
 export const SHORTCUTS: [string, string][] = [
   ['Space', 'Pause or resume audio'],
   ['N / P', 'Next or previous scene'],
-  ['R', 'Random scene in the current mode'],
-  ['T', 'Toggle Retro mode on or off'],
+  ['R', 'Random scene'],
+  ['T', 'Toggle the Retro look on or off'],
   ['S', 'Star or unstar the current scene'],
   ['F', 'Toggle full screen'],
   ['H', 'Hide or show the deck'],

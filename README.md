@@ -14,16 +14,23 @@ A browser music visualizer in the spirit of 2000s media players: a classic playe
 
 ## Scenes
 
-- **GPU:**
+One list of 22 scenes, plus every bundled MilkDrop preset. Press **T** (or the Retro button) to toggle the **Retro look** for whatever is playing:
+
+- **GPU scenes** render at about 320×200, dithered to the Retro palette: a green, amber or ice-blue monochrome monitor, or 64-color VGA.
+- **Canvas scenes** switch between crisp pixels (Retro on) and a smooth, glowing upscale (Retro off).
+
+The scenes:
+
+- **WebGL 2:**
   - Every bundled MilkDrop preset (395) via Butterchurn.
-  - Eight WebGL 2 shader scenes: Warp tunnel, Spectrum grid, Kaleidoscope bloom, Liquid blobs, Nebula drift, Black hole, Ringed planet and Hyperspace.
-- **Retro:** thirteen low-resolution Canvas 2D scenes, each taking one of four palettes (green phosphor, amber, ice blue, VGA rainbow):
+  - Eight shader scenes: Warp tunnel, Spectrum grid, Kaleidoscope bloom, Liquid blobs, Nebula drift, Black hole, Ringed planet and Hyperspace.
+- **Canvas 2D:** thirteen low-resolution scenes, each taking one of four palettes (green phosphor, amber, ice blue, VGA rainbow):
   - Spectrum bars, in Normal, Fire and Line coloring.
   - Oscilloscope, with Line, Dots and Solid traces.
   - Fire, Starfield, Palette plasma and Lissajous XY.
   - Feedback effects in the style of classic player visualization studios: Scope trails, Ring scope, Dot fountain, Dot plane, Flame fountain, Ripple and Spectrogram.
 
-Every scene works with every source: the demo synth, local files (with a queue), the microphone, or another browser tab's audio.
+Every scene works with every source: the demo synth, local files (with a queue), the microphone, or another browser tab's audio. Without WebGL 2, the app runs the canvas scenes with the Retro look locked on.
 
 ## Run it
 

@@ -36,7 +36,7 @@ export function useShortcuts(): void {
           break;
         case 't':
         case 'T':
-          controller.toggleMode();
+          controller.toggleRetro();
           break;
         case 's':
         case 'S':

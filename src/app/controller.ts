@@ -6,8 +6,9 @@ import { TabSource } from '../audio/sources/tab';
 import { SourceError, type AudioSource, type SourceKind } from '../audio/sources/types';
 import type { AudioFrame } from '../audio/types';
 import { Engine, hasWebGL2 } from '../render/Engine';
-import type { Family, Renderer } from '../render/Renderer';
-import { DEFAULT_SCENE, getScene, scenesFor } from '../render/registry';
+import type { Renderer } from '../render/Renderer';
+import { DEFAULT_SCENE, SCENES, getScene, type SceneEntry } from '../render/registry';
+import { RetroLook } from '../render/retroLook';
 import {
   getState,
   isFavorite,
@@ -48,21 +49,19 @@ class Controller {
     const fromHash = parseHash(location.hash);
     setState((s) => {
       const next: Partial<typeof s> = { webgl2 };
+      let scene = s.scene;
       if (fromHash && getScene(fromHash.rendererId)) {
-        const fam = getScene(fromHash.rendererId)!.family;
-        next.mode = fam;
-        next.scenes = { ...s.scenes, [fam]: fromHash };
+        scene = fromHash.presetId ? { rendererId: fromHash.rendererId, presetId: fromHash.presetId } : { rendererId: fromHash.rendererId };
+        if (fromHash.retro !== undefined) next.retroLook = fromHash.retro;
       }
-      if (!webgl2) next.mode = 'retro';
-      // Drop scenes that no longer exist (renamed in an update).
-      const scenes = { ...(next.scenes ?? s.scenes) };
-      for (const fam of ['gpu', 'retro'] as Family[]) {
-        if (!getScene(scenes[fam]?.rendererId)) scenes[fam] = { rendererId: DEFAULT_SCENE[fam] };
-      }
-      next.scenes = scenes;
+      // Drop scenes that no longer exist (renamed in an update) or need WebGL 2 we don't have.
+      const entry = getScene(scene?.rendererId);
+      if (!entry || (!webgl2 && entry.family === 'gpu')) scene = { rendererId: DEFAULT_SCENE[webgl2 ? 'gpu' : 'retro'] };
+      next.scene = scene;
+      if (!webgl2) next.retroLook = true;
       return next;
     });
-    if (!webgl2) showMessage('WebGL 2 is not available, so GPU scenes are off. Retro mode still works.', 'error');
+    if (!webgl2) showMessage('WebGL 2 is not available, so GPU scenes are off. Retro scenes still work.', 'error');
     this.updateSceneLabel();
 
     useStore.subscribe((s, prev) => {
@@ -88,7 +87,9 @@ class Controller {
       // Read the event's URL: a scene finishing its load may already have
       // replaced location.hash before this event is dispatched.
       const ref = parseHash(new URL(e.newURL).hash);
-      if (ref && getScene(ref.rendererId)) void this.selectScene(ref.rendererId, ref.presetId);
+      if (!ref || !getScene(ref.rendererId)) return;
+      if (ref.retro !== undefined && ref.retro !== getState().retroLook) this.setRetroLook(ref.retro);
+      void this.selectScene(ref.rendererId, ref.presetId);
     });
     // Some browsers keep the context suspended after a drop; any later tap resumes it.
     window.addEventListener('pointerdown', () => {
@@ -237,6 +238,7 @@ class Controller {
       {
         quality: s.quality === 'auto' ? s.autoScale : s.quality,
         reduceFlashing: s.reduceFlashing,
+        retroLook: s.retroLook,
         palette: s.palette,
         options: s.rendererOptions,
       },
@@ -251,8 +253,7 @@ class Controller {
     );
     this.applyQuality();
     this.engine.start();
-    const ref = s.scenes[s.mode];
-    void this.selectScene(ref.rendererId, ref.presetId);
+    void this.selectScene(s.scene.rendererId, s.scene.presetId);
   }
 
   private applyQuality(): void {
@@ -269,18 +270,17 @@ class Controller {
   }
 
   /** Loads a scene (or switches preset within the active one). Before audio starts, only records the choice. */
-  selectScene(rendererId: string, presetId?: string, blend = PRESET_BLEND): Promise<void> {
+  selectScene(rendererId: string, presetId?: string, blend = PRESET_BLEND, reload = false): Promise<void> {
     const entry = getScene(rendererId);
     if (!entry) return Promise.resolve();
     if (entry.family === 'gpu' && !getState().webgl2) {
       showMessage('GPU scenes need WebGL 2, which this browser does not have.', 'error');
       return Promise.resolve();
     }
-    if (entry.family !== getState().mode) setState({ mode: entry.family });
     this.cycleElapsed = 0;
 
     const active = this.renderer;
-    if (active && active.id === rendererId && presetId && active.setPreset) {
+    if (!reload && active && active.id === rendererId && presetId && active.setPreset) {
       if (active.currentPreset && active.currentPreset !== presetId) this.pushHistory(active.currentPreset);
       active.setPreset(presetId, blend);
       this.onSceneChange(active);
@@ -308,7 +308,7 @@ class Controller {
   next(auto = false): void {
     const s = getState();
     if (auto && s.favoritesOnly) {
-      const favs = s.favorites.filter((f) => getScene(f.rendererId)?.family === s.mode);
+      const favs = s.favorites.filter((f) => this.available().some((e) => e.id === f.rendererId));
       if (favs.length) {
         const cur = this.currentRef();
         const i = favs.findIndex((f) => cur && f.rendererId === cur.rendererId && (f.presetId ?? '') === (cur.presetId ?? ''));
@@ -318,8 +318,9 @@ class Controller {
       }
     }
     const r = this.renderer;
-    if (r && r.presets?.length && r.setPreset && r.family === s.mode) {
-      const pick = (r as Renderer & { randomPresetId?(x?: string): string | undefined }).randomPresetId?.(r.currentPreset);
+    if (r && r.presets?.length && r.setPreset) {
+      const base = (r instanceof RetroLook ? r.inner : r) as Renderer & { randomPresetId?(x?: string): string | undefined };
+      const pick = base.randomPresetId?.(r.currentPreset);
       if (pick) {
         void this.selectScene(r.id, pick, this.blendTime(auto));
         return;
@@ -330,7 +331,7 @@ class Controller {
 
   previous(): void {
     const r = this.renderer;
-    if (r && r.setPreset && this.presetHistory.length && r.family === getState().mode) {
+    if (r && r.setPreset && this.presetHistory.length) {
       const id = this.presetHistory.pop()!;
       r.setPreset(id, PRESET_BLEND);
       this.onSceneChange(r);
@@ -341,24 +342,31 @@ class Controller {
   }
 
   randomScene(): void {
-    const s = getState();
-    const list = scenesFor(s.mode);
-    const cur = s.scenes[s.mode].rendererId;
+    const list = this.available();
+    const cur = getState().scene.rendererId;
     const options = list.filter((e) => e.id !== cur);
     const pick = options[Math.floor(Math.random() * options.length)] ?? list[0];
     void this.selectScene(pick.id);
   }
 
-  toggleMode(): void {
-    const s = getState();
-    if (!s.webgl2) {
-      showMessage('Retro mode is locked on because WebGL 2 is not available.', 'error');
+  /** Toggles the Retro look; the current scene stays and re-renders in the other look. */
+  toggleRetro(): void {
+    if (!getState().webgl2) {
+      showMessage('The Retro look is locked on because WebGL 2 is not available.', 'error');
       return;
     }
-    const mode: Family = s.mode === 'gpu' ? 'retro' : 'gpu';
-    const ref = s.scenes[mode];
-    setState({ mode });
-    void this.selectScene(ref.rendererId, ref.presetId);
+    this.setRetroLook(!getState().retroLook);
+  }
+
+  private setRetroLook(on: boolean): void {
+    setState({ retroLook: on });
+    if (this.engine) this.engine.rc.retroLook = on;
+    const s = getState();
+    history.replaceState(null, '', formatHash(s.scene, on));
+    // GPU scenes swap between direct and wrapped rendering; canvas scenes switch look in place.
+    if (this.engine && getScene(s.scene.rendererId)?.family === 'gpu') {
+      void this.selectScene(s.scene.rendererId, this.renderer?.currentPreset ?? s.scene.presetId, 0, true);
+    }
   }
 
   toggleFavorite(): void {
@@ -370,14 +378,17 @@ class Controller {
   }
 
   currentRef(): SceneRef | null {
-    const s = getState();
-    return s.scenes[s.mode] ?? null;
+    return getState().scene ?? null;
+  }
+
+  /** Every scene this browser can run: all of them, or only canvas scenes without WebGL 2. */
+  available(): SceneEntry[] {
+    return getState().webgl2 ? SCENES : SCENES.filter((e) => e.family === 'retro');
   }
 
   private stepScene(dir: 1 | -1): void {
-    const s = getState();
-    const list = scenesFor(s.mode);
-    const i = list.findIndex((e) => e.id === s.scenes[s.mode].rendererId);
+    const list = this.available();
+    const i = list.findIndex((e) => e.id === getState().scene.rendererId);
     const pick = list[(i + dir + list.length) % list.length];
     void this.selectScene(pick.id);
   }
@@ -392,21 +403,19 @@ class Controller {
   }
 
   private rememberScene(ref: SceneRef): void {
-    const fam = getScene(ref.rendererId)!.family;
-    setState((s) => ({ scenes: { ...s.scenes, [fam]: ref } }));
-    history.replaceState(null, '', formatHash(ref));
+    setState({ scene: ref });
+    history.replaceState(null, '', formatHash(ref, getState().retroLook));
   }
 
   private onSceneChange(r: Renderer): void {
     const ref: SceneRef = r.currentPreset ? { rendererId: r.id, presetId: r.currentPreset } : { rendererId: r.id };
-    if (getState().mode === r.family) this.rememberScene(ref);
+    this.rememberScene(ref);
     setState({ presets: r.presets ?? [] });
     this.updateSceneLabel();
   }
 
   private updateSceneLabel(): void {
-    const s = getState();
-    const ref = s.scenes[s.mode];
+    const ref = getState().scene;
     const entry = getScene(ref.rendererId);
     const name = entry?.name ?? ref.rendererId;
     setState({ sceneLabel: ref.presetId ? `${name} · ${ref.presetId}` : name });

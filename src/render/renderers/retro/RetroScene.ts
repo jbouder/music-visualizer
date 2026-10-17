@@ -71,10 +71,26 @@ export abstract class RetroScene implements Renderer {
     this.draw(frame);
 
     const o = this.out;
+    const { x, y, w, h } = this.rect;
     o.fillStyle = '#000';
     o.fillRect(0, 0, o.canvas.width, o.canvas.height);
-    o.imageSmoothingEnabled = false;
-    o.drawImage(this.buf, this.rect.x, this.rect.y, this.rect.w, this.rect.h);
+    if (this.rc.retroLook) {
+      o.imageSmoothingEnabled = false;
+      o.drawImage(this.buf, x, y, w, h);
+      return;
+    }
+    // Smooth look: filtered upscale plus a soft additive glow where supported.
+    o.imageSmoothingEnabled = true;
+    o.imageSmoothingQuality = 'high';
+    o.drawImage(this.buf, x, y, w, h);
+    if ('filter' in o) {
+      o.save();
+      o.filter = `blur(${Math.max(2, (w / this.W) * 1.5)}px)`;
+      o.globalCompositeOperation = 'lighter';
+      o.globalAlpha = 0.55;
+      o.drawImage(this.buf, x, y, w, h);
+      o.restore();
+    }
   }
 
   dispose(): void {

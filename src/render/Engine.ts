@@ -3,6 +3,7 @@ import type { AudioFrame } from '../audio/types';
 import { QualityGovernor, nextLowerQuality } from './quality';
 import type { RenderContext, Renderer } from './Renderer';
 import { getScene } from './registry';
+import { RetroLook } from './retroLook';
 
 export const CROSSFADE_MS = 400;
 const GPU_MAX_PIXEL_RATIO = 1.5;
@@ -95,7 +96,8 @@ export class Engine {
     if (!entry) throw new Error(`Unknown scene: ${id}`);
     const token = ++this.token;
 
-    const renderer = await entry.load();
+    const loaded = await entry.load();
+    const renderer = this.rc.retroLook && loaded.family === 'gpu' ? new RetroLook(loaded) : loaded;
     const canvas = document.createElement('canvas');
     canvas.className = 'viz-layer';
     canvas.dataset.family = renderer.family;

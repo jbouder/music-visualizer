@@ -43,7 +43,7 @@ function Segmented<T extends string | number>({ label, value, options, onChange 
 export function Settings() {
   const s = useStore();
   const close = () => setState({ panel: 'none' });
-  const scene = getScene(s.scenes[s.mode].rendererId);
+  const scene = getScene(s.scene.rendererId);
   const sceneOptions = scene?.options;
   const autoNote = s.quality === 'auto' && s.autoScale < 1 ? `Running at ${Math.round(s.autoScale * 100)}% after slow frames.` : undefined;
 
@@ -61,7 +61,10 @@ export function Settings() {
       {autoNote && <p className="note">{autoNote}</p>}
       <Toggle id="set-crt" label="CRT overlay" hint="Scanlines and a vignette over every scene." checked={s.crt} onChange={(v) => setState({ crt: v })} />
       <div className="field">
-        <label htmlFor="set-palette">Retro palette</label>
+        <label htmlFor="set-palette">
+          Retro palette
+          <small>Colors the canvas scenes and the Retro look.</small>
+        </label>
         <select id="set-palette" className="select" value={s.palette} onChange={(e) => setState({ palette: e.target.value as typeof s.palette })}>
           {PALETTE_IDS.map((id) => (
             <option key={id} value={id}>

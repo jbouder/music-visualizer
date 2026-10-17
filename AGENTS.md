@@ -1,6 +1,6 @@
 # Agent notes
 
-The build spec lives in `docs/SPEC.md`, and the README lists the decisions made where the spec was silent.
+The original build spec lives in `docs/SPEC.md`. The app has since moved on from it in places: one combined scene list with a Retro *look* toggle (`src/render/retroLook.ts`) instead of two scene families, and a classic-player skin.
 
 - Use **bun**, not npm (`bun install`, `bun run …`). Pin new dependencies exactly (`bun add --exact`).
 - Keep `src/audio/` and `src/render/` free of React imports. UI calls `src/app/controller.ts`; it doesn't touch the engine directly.

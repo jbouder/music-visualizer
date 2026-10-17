@@ -37,7 +37,7 @@ function Glyph({ d }: { d: React.ReactNode }) {
 export function Deck({ hidden, deckRef, pickerButtonRef }: Props) {
   const fileInput = useRef<HTMLInputElement>(null);
   const s = useStore();
-  const ref = s.scenes[s.mode];
+  const ref = s.scene;
   const starred = isFavorite(s.favorites, ref);
   const sceneName = getScene(ref.rendererId)?.name ?? ref.rendererId;
   const playLabel = s.source && s.paused ? 'Resume' : 'Play demo';
@@ -109,10 +109,10 @@ export function Deck({ hidden, deckRef, pickerButtonRef }: Props) {
               type="button"
               className="led-btn"
               aria-label="Retro mode"
-              aria-pressed={s.mode === 'retro'}
+              aria-pressed={s.retroLook}
               disabled={!s.webgl2}
-              title={s.webgl2 ? 'Toggle Retro mode (T)' : 'Retro mode is locked on: WebGL 2 is not available'}
-              onClick={() => controller.toggleMode()}
+              title={s.webgl2 ? 'Toggle the Retro look (T)' : 'The Retro look is locked on: WebGL 2 is not available'}
+              onClick={() => controller.toggleRetro()}
             >
               <span className="led" aria-hidden="true" />
               Retro
