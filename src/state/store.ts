@@ -46,7 +46,17 @@ export interface WindowPos {
 }
 
 export type Panel = 'none' | 'settings' | 'help' | 'picker' | 'terminal';
-export type Skin = 'classic' | 'win31' | 'glass';
+export type Skin = 'classic' | 'midnight' | 'metal' | 'hifi' | 'neon' | 'toxic' | 'win31' | 'glass';
+
+/** Skins offered in Settings, in display order. */
+export const SKINS: { id: Skin; name: string }[] = [
+  { id: 'classic', name: 'Classic' },
+  { id: 'midnight', name: 'Midnight' },
+  { id: 'metal', name: 'Brushed metal' },
+  { id: 'hifi', name: 'Hi-fi' },
+  { id: 'neon', name: 'Neon' },
+  { id: 'toxic', name: 'Toxic' },
+];
 export type Game = 'snake' | 'breakout';
 
 export interface Message {

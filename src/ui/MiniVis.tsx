@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { controller } from '../app/controller';
+import { useStore } from '../state/store';
 import { logBinRanges } from '../render/renderers/retro/bars';
 
 const W = 76;
@@ -9,18 +10,32 @@ type Mode = 'bars' | 'scope' | 'off';
 const NEXT: Record<Mode, Mode> = { bars: 'scope', scope: 'off', off: 'bars' };
 const NAMES: Record<Mode, string> = { bars: 'analyzer', scope: 'oscilloscope', off: 'off' };
 
-// Row colors, top (loud) to bottom (quiet), like the classic analyzer.
-const ROWS = Array.from({ length: H }, (_, y) => {
-  const t = y / (H - 1);
-  const r = t < 0.5 ? 255 : Math.round(255 * (1 - (t - 0.5) * 2) + 24 * (t - 0.5) * 2);
-  const g = t < 0.5 ? Math.round(60 + 195 * t * 2) : 210;
-  return `rgb(${r},${g},40)`;
-});
+function hex(v: string, fallback: string): [number, number, number] {
+  const m = /^#([0-9a-f]{6})$/i.exec(v.trim()) ?? /^#([0-9a-f]{6})$/i.exec(fallback);
+  const n = parseInt(m![1], 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+
+/** The skin's analyzer colors: row gradient (top, loud, first) plus peak and scope colors. */
+function readColors() {
+  const css = getComputedStyle(document.documentElement);
+  const lo = hex(css.getPropertyValue('--viz-lo'), '#19c83a');
+  const mid = hex(css.getPropertyValue('--viz-mid'), '#f0e030');
+  const hi = hex(css.getPropertyValue('--viz-hi'), '#ff3a28');
+  const rows = Array.from({ length: H }, (_, y) => {
+    const t = 1 - y / (H - 1); // 1 at the top
+    const [a, b, k] = t < 0.5 ? [lo, mid, t * 2] : [mid, hi, (t - 0.5) * 2];
+    const c = a.map((v, i) => Math.round(v + (b[i] - v) * k));
+    return `rgb(${c[0]},${c[1]},${c[2]})`;
+  });
+  return { rows, peak: css.getPropertyValue('--viz-peak').trim() || '#a8a8a8', scope: css.getPropertyValue('--viz-scope').trim() || '#d8d8d8' };
+}
 
 /** The tiny analyzer in the display. Click to switch analyzer, oscilloscope or off. */
 export function MiniVis() {
   const canvas = useRef<HTMLCanvasElement>(null);
   const [mode, setMode] = useState<Mode>('bars');
+  const skin = useStore((s) => s.skin);
 
   useEffect(() => {
     const ctx = canvas.current?.getContext('2d');
@@ -29,6 +44,7 @@ export function MiniVis() {
     const peaks = new Float32Array(BARS);
     const hold = new Uint8Array(BARS);
     let ranges: [number, number][] | null = null;
+    const colors = readColors();
     let raf = 0;
     let last = 0;
 
@@ -41,7 +57,7 @@ export function MiniVis() {
       const f = controller.frame;
       if (mode === 'off' || !f) return;
       if (mode === 'scope') {
-        ctx.fillStyle = '#d8d8d8';
+        ctx.fillStyle = colors.scope;
         for (let x = 0; x < W; x++) {
           const v = (f.wave[x * 16] - 128) / 128;
           ctx.fillRect(x, Math.round(H / 2 - v * (H / 2 - 1)), 1, 1);
@@ -62,18 +78,18 @@ export function MiniVis() {
         else peaks[i] = Math.max(0, peaks[i] - 0.5);
         const x = i * 4;
         for (let y = 0; y < heights[i]; y++) {
-          ctx.fillStyle = ROWS[H - 1 - y];
+          ctx.fillStyle = colors.rows[H - 1 - y];
           ctx.fillRect(x, H - 1 - y, 3, 1);
         }
         if (peaks[i] >= 1) {
-          ctx.fillStyle = '#a8a8a8';
+          ctx.fillStyle = colors.peak;
           ctx.fillRect(x, H - Math.ceil(peaks[i]), 3, 1);
         }
       }
     };
     raf = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(raf);
-  }, [mode]);
+  }, [mode, skin]);
 
   return (
     <button

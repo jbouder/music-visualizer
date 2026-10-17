@@ -1,6 +1,6 @@
 import { getScene } from '../render/registry';
 import { PALETTES, PALETTE_IDS } from '../render/renderers/retro/palettes';
-import { setState, useStore, type CycleInterval, type QualityMode } from '../state/store';
+import { SKINS, setState, useStore, type CycleInterval, type QualityMode, type Skin } from '../state/store';
 import { Sheet } from './Sheet';
 
 const INTERVALS: CycleInterval[] = [10, 20, 30, 60];
@@ -49,6 +49,21 @@ export function Settings() {
 
   return (
     <Sheet title="Settings" onClose={close}>
+      <div className="field">
+        <label htmlFor="set-skin">Player skin</label>
+        <select id="set-skin" className="select" value={s.skin} onChange={(e) => setState({ skin: e.target.value as Skin })}>
+          {SKINS.map((k) => (
+            <option key={k.id} value={k.id}>
+              {k.name}
+            </option>
+          ))}
+          {!SKINS.some((k) => k.id === s.skin) && (
+            <option value={s.skin} hidden>
+              Custom
+            </option>
+          )}
+        </select>
+      </div>
       <Toggle id="set-auto" label="Auto-cycle" hint="Moves to the next scene on a timer." checked={s.autoCycle} onChange={(v) => setState({ autoCycle: v })} />
       <Segmented
         label="Cycle interval"

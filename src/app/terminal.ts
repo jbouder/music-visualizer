@@ -23,12 +23,12 @@ export const BOOT_LINES = [
   "TYPE 'HELP' FOR COMMANDS.",
 ];
 
-const SKINS: Skin[] = ['classic', 'win31', 'glass'];
+const SKINS: Skin[] = ['classic', 'midnight', 'metal', 'hifi', 'neon', 'toxic', 'win31', 'glass'];
 
 const HELP = [
   'DEMO               RUN THE INTRO',
   'STATS              TOGGLE THE SYSTEM MONITOR',
-  'SKIN <NAME>        CLASSIC, WIN31 OR GLASS',
+  'SKIN <NAME>        CHANGE THE PLAYER SKIN',
   'SNAKE              PLAY SNAKE',
   'BREAKOUT           PLAY BREAKOUT',
   'SCENES             LIST SCENES',
@@ -52,7 +52,7 @@ export function runCommand(input: string): CommandResult {
       return { lines: ['SYSTEM MONITOR TOGGLED.'], action: { type: 'stats' } };
     case 'skin': {
       const skin = args[0] as Skin | undefined;
-      if (!skin || !SKINS.includes(skin)) return { lines: [`USAGE: SKIN ${SKINS.join(' | ').toUpperCase()}`] };
+      if (!skin || !SKINS.includes(skin)) return { lines: [`USAGE: SKIN <NAME>`, `  ${SKINS.join('  ').toUpperCase()}`] };
       return { lines: [`SKIN SET TO ${skin.toUpperCase()}.`], action: { type: 'skin', skin } };
     }
     case 'snake':

@@ -54,6 +54,21 @@ The scenes:
 
 Every scene works with every source: the demo synth, local files (with a queue), the microphone, or another browser tab's audio. Without WebGL 2, the Retro look is locked on: every scene except MilkDrop presets still plays, through its canvas version.
 
+## Skins
+
+Pick a player skin under **Settings → Player skin**:
+
+| Skin | Look |
+| --- | --- |
+| Classic | Gunmetal frame, green LCD |
+| Midnight | Deep navy, cyan LCD |
+| Brushed metal | Silver aluminum faceplate, blue-backlit LCD |
+| Hi-fi | Walnut wood panel, teal display, like an old stereo receiver |
+| Neon | Black glass with magenta and cyan glow |
+| Toxic | Lime plastic with a black and yellow display |
+
+Each skin is a set of CSS custom properties in `src/ui/skin.css` (`:root[data-skin='…']`): frame, title bar, buttons, LCD, volume bar and mini-analyzer colors, plus an optional texture on `.window`. To add a skin, add a token block there and an entry to `SKINS` in `src/state/store.ts`.
+
 ## Controls
 
 | Key | Action |
