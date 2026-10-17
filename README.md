@@ -47,8 +47,8 @@ Every scene works with every source: the demo synth, local files (with a queue),
 | ? | Help |
 
 - **Hide:** click the visuals to hide or show the player window.
-- **Move:** drag the title bar to put the player anywhere on screen. Double-click the title bar to dock it back at the bottom. The position is remembered between visits.
-- **Minimize:** the title bar's minimize button shrinks the player to a compact box in the bottom-right corner. Drag its striped grip to move it, and double-click the grip to dock it again.
+- **Move:** drag the title bar to put the player anywhere on screen; it stays there (even between visits) until you minimize it or double-click the title bar.
+- **Minimize:** the title bar's minimize button always shrinks the player to a compact box in the bottom-right corner, and its restore button always brings the full player back to bottom center. In between, drag the box by its striped grip to move it.
 - **Links:** the URL tracks the current scene, so links like `#r=blackhole&retro=1` open straight to it.
 
 ## Run it

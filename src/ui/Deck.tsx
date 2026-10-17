@@ -70,7 +70,7 @@ export function Deck({ hidden, deckRef, pickerButtonRef }: Props) {
             <button type="button" className="tbtn" aria-label="Next scene" onClick={() => controller.next()}>
               <Glyph d={G.next} />
             </button>
-            <ChipButton label="Restore controls" onClick={() => setState({ deckMini: false })}>
+            <ChipButton label="Restore controls" onClick={() => setState({ deckMini: false, deckPos: null })}>
               □
             </ChipButton>
           </div>
@@ -88,7 +88,7 @@ export function Deck({ hidden, deckRef, pickerButtonRef }: Props) {
               □
             </ChipButton>
           )}
-          <ChipButton label="Minimize controls" onClick={() => setState({ deckMini: true })}>
+          <ChipButton label="Minimize controls" onClick={() => setState({ deckMini: true, miniPos: null })}>
             _
           </ChipButton>
         </TitleBar>
