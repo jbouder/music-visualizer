@@ -12,6 +12,7 @@ export function useShortcuts(): void {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey || isTyping(e.target)) return;
+      if (getState().game) return;
       const panelOpen = getState().panel !== 'none';
       // Inside an open panel, let buttons handle Space and Enter themselves.
       if (panelOpen && e.key !== '?') return;

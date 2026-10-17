@@ -206,6 +206,26 @@ export function Deck({ hidden, deckRef, pickerButtonRef }: Props) {
             </div>
           )}
 
+          <span
+            className="pi"
+            aria-hidden="true"
+            onContextMenu={(e) => e.preventDefault()}
+            onPointerDown={(e) => {
+              const open = () => setState({ panel: 'terminal' });
+              if (e.shiftKey && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                open();
+              } else if (e.pointerType === 'touch') {
+                const timer = window.setTimeout(open, 900);
+                const cancel = () => window.clearTimeout(timer);
+                e.currentTarget.addEventListener('pointerup', cancel, { once: true });
+                e.currentTarget.addEventListener('pointerleave', cancel, { once: true });
+              }
+            }}
+          >
+            π
+          </span>
+
           <div className="row listbar">
             <button
               ref={pickerButtonRef}

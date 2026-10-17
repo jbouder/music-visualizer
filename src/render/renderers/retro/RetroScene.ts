@@ -79,7 +79,7 @@ export abstract class RetroScene implements Renderer {
     const { x, y, w, h } = this.rect;
     o.fillStyle = '#000';
     o.fillRect(0, 0, o.canvas.width, o.canvas.height);
-    if (this.rc.retroLook) {
+    if (this.rc.retroLook || this.crisp) {
       o.imageSmoothingEnabled = false;
       o.drawImage(this.buf, x, y, w, h);
       return;
@@ -103,6 +103,9 @@ export abstract class RetroScene implements Renderer {
     this.buf = null;
     this.out = null;
   }
+
+  /** Always scale with hard pixels, even when the Retro look is off. */
+  protected crisp = false;
 
   /** This scene's own colors, used when the palette setting is Scene colors. */
   protected natural: Palette = PALETTES.green;

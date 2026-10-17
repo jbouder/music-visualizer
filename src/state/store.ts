@@ -35,6 +35,9 @@ export interface Settings {
   /** Where the player was dragged, as 0-1 fractions of the free space; null when docked. */
   deckPos: WindowPos | null;
   miniPos: WindowPos | null;
+  /** Unlocked from the hidden terminal. */
+  skin: Skin;
+  monitor: boolean;
 }
 
 export interface WindowPos {
@@ -42,7 +45,9 @@ export interface WindowPos {
   y: number;
 }
 
-export type Panel = 'none' | 'settings' | 'help' | 'picker';
+export type Panel = 'none' | 'settings' | 'help' | 'picker' | 'terminal';
+export type Skin = 'classic' | 'win31' | 'glass';
+export type Game = 'snake' | 'breakout';
 
 export interface Message {
   text: string;
@@ -64,6 +69,8 @@ export interface Runtime {
   /** Presets of the active renderer, when it has any. */
   presets: { id: string; name: string }[];
   fileQueueLength: number;
+  /** A hidden game is open. */
+  game: Game | null;
 }
 
 export type State = Settings & Runtime;
@@ -86,6 +93,8 @@ export function defaultSettings(reducedMotion = prefersReducedMotion()): Setting
     deckMini: false,
     deckPos: null,
     miniPos: null,
+    skin: 'classic',
+    monitor: false,
   };
 }
 
@@ -102,6 +111,7 @@ const initialRuntime: Runtime = {
   searchFocused: false,
   presets: [],
   fileQueueLength: 0,
+  game: null,
 };
 
 export const sameRef = (a: SceneRef, b: SceneRef) =>
@@ -149,6 +159,8 @@ export const useStore = create<State>()(
       deckMini: s.deckMini,
       deckPos: s.deckPos,
       miniPos: s.miniPos,
+      skin: s.skin,
+      monitor: s.monitor,
     }),
     merge: (persisted, current) => ({ ...current, ...(persisted as Partial<Settings>) }),
   }),

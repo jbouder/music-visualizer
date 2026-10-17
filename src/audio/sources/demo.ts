@@ -24,7 +24,7 @@ const mtof = (m: number) => 440 * 2 ** ((m - 69) / 12);
 /** A generative synth loop built from oscillators and noise, so the app plays with no files. */
 export class DemoSource implements AudioSource {
   readonly kind = 'demo';
-  readonly label = 'Demo synth · generative loop';
+  readonly label: string;
 
   private out: GainNode | null = null;
   private timer: number | null = null;
@@ -37,7 +37,11 @@ export class DemoSource implements AudioSource {
     private readonly ctx: AudioContext,
     private readonly master: GainNode,
     private readonly vizBus: GainNode,
-  ) {}
+    /** Chiptune remix: pulse and triangle voices, fast arpeggios, no pad. */
+    private readonly chip = false,
+  ) {
+    this.label = chip ? 'Demo synth · chiptune remix' : 'Demo synth · generative loop';
+  }
 
   async start(): Promise<void> {
     const out = this.ctx.createGain();
@@ -90,7 +94,7 @@ export class DemoSource implements AudioSource {
     if (s16 === 0 && bar % 4 === 0) {
       this.arp = ARP_PATTERNS[Math.floor(Math.random() * ARP_PATTERNS.length)];
     }
-    if (s16 === 0) this.pad(chord.tones, t, STEP * 16);
+    if (s16 === 0 && !this.chip) this.pad(chord.tones, t, STEP * 16);
 
     const drums = section !== 2;
     if (drums && s16 % 4 === 0) this.kick(t);
@@ -100,6 +104,12 @@ export class DemoSource implements AudioSource {
     if (section === 3 && s16 % 2 === 1 && Math.random() < 0.3) this.hat(t, 0.05);
 
     if (section !== 2 && BASS[s16]) this.bass(chord.root, t, bar);
+    if (this.chip) {
+      // Fast arpeggio over two octaves, every sixteenth.
+      const tones = [...chord.tones, chord.tones[0] + 12, chord.tones[1] + 12];
+      this.pluck(tones[(s16 + bar) % tones.length] + 12, t);
+      return;
+    }
     if (section !== 0 && s16 % 2 === 0) {
       const tone = this.arp[(s16 / 2) % this.arp.length];
       const note = tone === 3 ? chord.tones[0] + 12 : chord.tones[tone] + 12;
@@ -154,6 +164,14 @@ export class DemoSource implements AudioSource {
 
   private bass(root: number, t: number, bar: number): void {
     const o = this.ctx.createOscillator();
+    if (this.chip) {
+      o.type = 'triangle';
+      o.frequency.value = mtof(root - 12);
+      o.connect(this.env(t, 0.5, 0.002, STEP * 1.4));
+      o.start(t);
+      o.stop(t + STEP * 2);
+      return;
+    }
     o.type = 'sawtooth';
     o.frequency.value = mtof(root - 12);
     const lp = this.ctx.createBiquadFilter();
@@ -171,6 +189,12 @@ export class DemoSource implements AudioSource {
     const o = this.ctx.createOscillator();
     o.type = 'square';
     o.frequency.value = mtof(note);
+    if (this.chip) {
+      o.connect(this.env(t, 0.05, 0.002, STEP * 0.9));
+      o.start(t);
+      o.stop(t + STEP);
+      return;
+    }
     const lp = this.ctx.createBiquadFilter();
     lp.type = 'lowpass';
     lp.frequency.setValueAtTime(4200, t);

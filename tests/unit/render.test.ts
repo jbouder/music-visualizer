@@ -10,7 +10,7 @@ describe('registry', () => {
     expect(scenesFor('gpu').map((s) => s.id)).toEqual([
       'butterchurn', 'tunnel', 'grid', 'kaleido', 'blobs', 'nebula', 'blackhole', 'planet', 'hyperspace', 'rain',
     ]);
-    expect(scenesFor('retro').map((s) => s.id)).toEqual([
+    expect(scenesFor('retro').filter((s) => !s.hidden).map((s) => s.id)).toEqual([
       'bars', 'scope', 'fire', 'starfield', 'plasma', 'lissajous',
       'trails', 'ring', 'fountain', 'plane', 'flames', 'ripple', 'spectrogram',
     ]);

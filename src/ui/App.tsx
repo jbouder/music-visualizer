@@ -2,9 +2,12 @@ import { useEffect, useRef, useState } from 'react';
 import { controller } from '../app/controller';
 import { setState, useStore } from '../state/store';
 import { Deck } from './Deck';
+import { GameWindow } from './GameWindow';
 import { Help } from './Help';
 import { ScenePicker } from './ScenePicker';
 import { Settings } from './Settings';
+import { SystemMonitor } from './SystemMonitor';
+import { Terminal } from './Terminal';
 import { useShortcuts } from './useShortcuts';
 
 const FULLSCREEN_IDLE_MS = 4000;
@@ -19,6 +22,9 @@ export function App() {
   const started = useStore((s) => s.source !== null || s.sourceLabel !== '');
   const seenHelp = useStore((s) => s.seenHelp);
   const deckMini = useStore((s) => s.deckMini);
+  const skin = useStore((s) => s.skin);
+  const monitor = useStore((s) => s.monitor);
+  const game = useStore((s) => s.game);
   const [idleHidden, setIdleHidden] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [everStarted, setEverStarted] = useState(false);
@@ -32,6 +38,10 @@ export function App() {
   useEffect(() => {
     if (started) setEverStarted(true);
   }, [started]);
+
+  useEffect(() => {
+    document.documentElement.dataset.skin = skin;
+  }, [skin]);
 
   // Keep dropdown panels clear of the deck on desktop.
   useEffect(() => {
@@ -108,6 +118,9 @@ export function App() {
       {panel === 'picker' && <ScenePicker />}
       {panel === 'settings' && <Settings />}
       {panel === 'help' && <Help />}
+      {panel === 'terminal' && <Terminal />}
+      {game && <GameWindow game={game} />}
+      {monitor && <SystemMonitor />}
       {dragging && <div className="drop-hint">Drop audio files to play</div>}
     </>
   );

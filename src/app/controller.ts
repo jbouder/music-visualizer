@@ -110,6 +110,14 @@ class Controller {
     this.start(new DemoSource(ctx, this.audio.master!, this.audio.vizBus!));
   }
 
+  /** Chiptune remix of the demo plus the intro scene. */
+  launchIntro(): void {
+    const ctx = this.audio.unlock();
+    this.start(new DemoSource(ctx, this.audio.master!, this.audio.vizBus!, true));
+    setState({ deckHidden: true });
+    void this.selectScene('intro');
+  }
+
   startMic(): void {
     const ctx = this.audio.unlock();
     this.start(new MicSource(ctx, this.audio.vizBus!));
@@ -383,7 +391,8 @@ class Controller {
 
   /** Every scene this browser can run. Without WebGL 2: canvas scenes and GPU scenes with a classic counterpart. */
   available(): SceneEntry[] {
-    return getState().webgl2 ? SCENES : SCENES.filter((e) => e.family === 'retro' || e.retro);
+    const all = SCENES.filter((e) => !e.hidden);
+    return getState().webgl2 ? all : all.filter((e) => e.family === 'retro' || e.retro);
   }
 
   private stepScene(dir: 1 | -1): void {

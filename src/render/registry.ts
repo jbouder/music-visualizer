@@ -12,6 +12,8 @@ export interface SceneEntry {
   retro?: () => Promise<Renderer>;
   /** GPU scenes without a counterpart: keep their own colors (16-bit) in the Retro look. */
   retroNative?: boolean;
+  /** Left out of lists, Next and Random; reachable by id only. */
+  hidden?: boolean;
 }
 
 function shader(id: string, name: string, retro: () => Promise<Renderer>): SceneEntry {
@@ -79,6 +81,7 @@ export const SCENES: SceneEntry[] = [
   { id: 'plane', name: 'Dot plane', family: 'retro', load: async () => new (await import('./renderers/retro/plane')).PlaneScene() },
   { id: 'flames', name: 'Flame fountain', family: 'retro', load: async () => new (await import('./renderers/retro/flames')).FlameFountainScene() },
   { id: 'ripple', name: 'Ripple', family: 'retro', load: async () => new (await import('./renderers/retro/ripple')).RippleScene() },
+  { id: 'intro', name: 'Intro', family: 'retro', hidden: true, load: async () => new (await import('./renderers/retro/intro')).IntroScene() },
   { id: 'spectrogram', name: 'Spectrogram', family: 'retro', load: async () => new (await import('./renderers/retro/spectrogram')).SpectrogramScene() },
 ];
 
