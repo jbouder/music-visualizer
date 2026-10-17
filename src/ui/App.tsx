@@ -43,6 +43,18 @@ export function App() {
     document.documentElement.dataset.skin = skin;
   }, [skin]);
 
+  // The Neon skin's edge glows with the beat (never when Reduce flashing is on).
+  const reduceFlashing = useStore((s) => s.reduceFlashing);
+  useEffect(() => {
+    const root = document.documentElement;
+    if (skin !== 'neon' || reduceFlashing) {
+      root.style.setProperty('--beat', '0');
+      return;
+    }
+    const id = window.setInterval(() => root.style.setProperty('--beat', (controller.frame?.beat ?? 0).toFixed(2)), 33);
+    return () => window.clearInterval(id);
+  }, [skin, reduceFlashing]);
+
   // Keep dropdown panels clear of the deck on desktop.
   useEffect(() => {
     const el = deck.current;

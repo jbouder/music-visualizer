@@ -56,18 +56,15 @@ Every scene works with every source: the demo synth, local files (with a queue),
 
 ## Skins
 
-Pick a player skin under **Settings → Player skin**:
+Pick a player skin under **Settings → Player skin**. Skins change more than color: window shape, button style, materials and the display itself.
 
-| Skin | Look |
+| | |
 | --- | --- |
-| Classic | Gunmetal frame, green LCD |
-| Midnight | Deep navy, cyan LCD |
-| Brushed metal | Silver aluminum faceplate, blue-backlit LCD |
-| Hi-fi | Walnut wood panel, teal display, like an old stereo receiver |
-| Neon | Black glass with magenta and cyan glow |
-| Toxic | Lime plastic with a black and yellow display |
+| **Classic**: gunmetal frame, silver transport, green LCD<br>![Classic skin](docs/screenshots/skin-classic.jpg) | **Midnight**: a rounded navy pod, round chrome buttons, glass over the displays<br>![Midnight skin](docs/screenshots/skin-midnight.jpg) |
+| **Brushed metal**: a screwed-down aluminum faceplate, machined round buttons, a dot-matrix display<br>![Brushed metal skin](docs/screenshots/skin-metal.jpg) | **Hi-fi**: walnut cheeks around a champagne panel, piano-key transport, a glowing VFD<br>![Hi-fi skin](docs/screenshots/skin-hifi.jpg) |
+| **Neon**: angled panel cuts, outline buttons, an edge that pulses with the beat<br>![Neon skin](docs/screenshots/skin-neon.jpg) | **Toxic**: a bulbous lime shell, gel pill buttons, a hazard-stripe title bar<br>![Toxic skin](docs/screenshots/skin-toxic.jpg) |
 
-Each skin is a set of CSS custom properties in `src/ui/skin.css` (`:root[data-skin='…']`): frame, title bar, buttons, LCD, volume bar and mini-analyzer colors, plus an optional texture on `.window`. To add a skin, add a token block there and an entry to `SKINS` in `src/state/store.ts`.
+Each skin lives in `src/ui/skin.css` as a block of color tokens (`:root[data-skin='…']`) plus optional overrides for `.window` (shape and material), `.titlebar`, `.tbtn` and the other buttons, and the displays. To add one, write those rules and add an entry to `SKINS` in `src/state/store.ts`. Keep buttons at least 44 px, keep focus outlines visible, and check the phone layout. The Neon pulse reads `--beat`, which the app sets only for that skin and never when Reduce flashing is on.
 
 ## Controls
 

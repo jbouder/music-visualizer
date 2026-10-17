@@ -1547,3 +1547,383 @@ kbd {
 [data-skin='toxic'] .sheet-body {
   color: #e8ff7a;
 }
+
+/* ── Skin shapes, buttons and materials ────────────────── */
+
+/* Midnight: a smooth pod with round chrome buttons and glass over the displays */
+[data-skin='midnight'] .window {
+  border-radius: 24px;
+  background:
+    radial-gradient(120% 60% at 50% 0%, rgb(120 160 255 / 0.18), transparent 60%),
+    linear-gradient(180deg, #24305a, #141c38);
+}
+[data-skin='midnight'] .titlebar {
+  height: 34px;
+  border-radius: 24px 24px 0 0;
+  background: transparent;
+  border-bottom: 0;
+  box-shadow: none;
+}
+[data-skin='midnight'] .titlebar-grip {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--title-on));
+}
+[data-skin='midnight'] .titlebar-grip:last-of-type {
+  background: linear-gradient(90deg, var(--title-on), transparent);
+}
+[data-skin='midnight'] .deck {
+  padding: 6px 14px 14px;
+}
+[data-skin='midnight'] .lcd-box,
+[data-skin='midnight'] .info,
+[data-skin='midnight'] .scene-btn {
+  position: relative;
+  border-radius: 12px;
+  border-color: #000;
+}
+[data-skin='midnight'] .lcd-box::after,
+[data-skin='midnight'] .info::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(170deg, rgb(255 255 255 / 0.14), rgb(255 255 255 / 0.03) 45%, transparent 46%);
+}
+[data-skin='midnight'] .tbtn,
+[data-skin='metal'] .tbtn {
+  width: 44px;
+  height: 44px;
+  justify-self: center;
+  border-radius: 50%;
+}
+[data-skin='midnight'] .tbtn {
+  background: radial-gradient(circle at 50% 30%, #ffffff, #c7d3f0 35%, #7d8db8 75%, #4c5a85);
+  box-shadow:
+    inset 0 -2px 3px rgb(0 0 0 / 0.35),
+    0 0 0 1px #0a1230,
+    0 3px 6px rgb(0 0 0 / 0.45);
+}
+[data-skin='midnight'] .tbtn[aria-pressed='true'],
+[data-skin='midnight'] .tbtn:active {
+  background: radial-gradient(circle at 50% 60%, #9fb3e0, #6e82b6 70%, #4c5a85);
+  box-shadow:
+    inset 0 2px 4px rgb(0 0 0 / 0.5),
+    0 0 0 1px #0a1230;
+  color: #0a1230;
+}
+[data-skin='midnight'] .transport {
+  gap: 6px;
+}
+[data-skin='midnight'] .led-btn,
+[data-skin='midnight'] .sbtn {
+  border-radius: 999px;
+}
+
+/* Brushed metal: a hi-fi faceplate with screws, machined buttons and a dot-matrix display */
+[data-skin='metal'] .main-window::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  --screw: radial-gradient(circle, #f4f6f8 0 2px, #6c727a 2.5px 3.5px, transparent 4px);
+  background:
+    var(--screw) 3px 3px / 12px 12px no-repeat,
+    var(--screw) calc(100% - 3px) 3px / 12px 12px no-repeat,
+    var(--screw) 3px calc(100% - 3px) / 12px 12px no-repeat,
+    var(--screw) calc(100% - 3px) calc(100% - 3px) / 12px 12px no-repeat;
+}
+[data-skin='metal'] .titlebar {
+  background: transparent;
+  border-bottom: 1px solid rgb(0 0 0 / 0.18);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.7);
+}
+[data-skin='metal'] .titlebar-grip {
+  visibility: hidden;
+}
+[data-skin='metal'] .titlebar-title {
+  color: #5a6068;
+  text-shadow:
+    0 1px 0 #fff,
+    0 -1px 0 rgb(0 0 0 / 0.35);
+  letter-spacing: 0.3em;
+}
+[data-skin='metal'] .deck {
+  padding: 10px 16px 16px;
+}
+[data-skin='metal'] .lcd-box,
+[data-skin='metal'] .info,
+[data-skin='metal'] .scene-btn {
+  border-radius: 4px;
+  box-shadow:
+    inset 0 2px 6px rgb(0 0 0 / 0.9),
+    0 1px 0 #fff,
+    0 -1px 0 rgb(0 0 0 / 0.25);
+}
+/* Dot-matrix: the display text and digits are seen through a grid of round holes. */
+[data-skin='metal'] .sevenseg,
+[data-skin='metal'] .marquee,
+[data-skin='metal'] .lcd-scene {
+  -webkit-mask-image: radial-gradient(circle, #000 52%, transparent 58%);
+  mask-image: radial-gradient(circle, #000 52%, transparent 58%);
+  -webkit-mask-size: 2px 2px;
+  mask-size: 2px 2px;
+}
+[data-skin='metal'] .tbtn {
+  background:
+    radial-gradient(circle at 50% 50%, transparent 55%, rgb(0 0 0 / 0.12) 56%, transparent 62%),
+    conic-gradient(from 0deg, #e9ecef, #b9bec5, #f7f8fa, #a9aeb6, #e9ecef, #b9bec5, #f7f8fa, #a9aeb6, #e9ecef);
+  box-shadow:
+    inset 0 1px 1px #fff,
+    0 0 0 1px #6c727a,
+    0 0 0 3px #c9cdd3,
+    0 0 0 4px #8a9099,
+    0 3px 5px rgb(0 0 0 / 0.35);
+}
+[data-skin='metal'] .tbtn[aria-pressed='true'],
+[data-skin='metal'] .tbtn:active {
+  transform: translateY(1px);
+  box-shadow:
+    inset 0 2px 4px rgb(0 0 0 / 0.4),
+    0 0 0 1px #6c727a,
+    0 0 0 3px #c9cdd3,
+    0 0 0 4px #8a9099;
+  color: #2a5fa8;
+}
+[data-skin='metal'] .transport {
+  gap: 10px;
+}
+
+/* Hi-fi: wood cheeks around a champagne panel, piano-key transport and a VFD */
+[data-skin='hifi'] .main-window {
+  --wood:
+    repeating-linear-gradient(178deg, rgb(255 220 170 / 0.06) 0 2px, transparent 2px 6px, rgb(0 0 0 / 0.12) 6px 7px, transparent 7px 11px),
+    linear-gradient(90deg, #5a3016, #8a5228 45%, #5a3016);
+  background:
+    var(--wood) left / 18px 100% no-repeat,
+    var(--wood) right / 18px 100% no-repeat,
+    repeating-linear-gradient(90deg, rgb(255 255 255 / 0.05) 0 1px, transparent 1px 3px),
+    linear-gradient(180deg, #d9cbb0, #a8987a);
+  border-radius: 6px;
+}
+[data-skin='hifi'] .main-window .titlebar {
+  margin: 0 18px;
+  background: transparent;
+  border-bottom: 1px solid rgb(0 0 0 / 0.25);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.35);
+}
+[data-skin='hifi'] .main-window .titlebar-title {
+  color: #3a2a14;
+  text-shadow: 0 1px 0 rgb(255 255 255 / 0.5);
+}
+[data-skin='hifi'] .main-window .titlebar-grip {
+  background: repeating-linear-gradient(180deg, #6a5530 0 1px, transparent 1px 3px);
+}
+[data-skin='hifi'] .main-window .deck {
+  padding: 8px 26px 12px;
+}
+[data-skin='hifi'] .main-window .volume {
+  color: #3a2a14;
+}
+[data-skin='hifi'] .lcd-box,
+[data-skin='hifi'] .info {
+  position: relative;
+  background: #010d0c;
+  border-radius: 3px;
+}
+[data-skin='hifi'] .lcd-box::after,
+[data-skin='hifi'] .info::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(0deg, rgb(0 0 0 / 0.35) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgb(0 0 0 / 0.25) 0 1px, transparent 1px 3px);
+}
+[data-skin='hifi'] .seg-on {
+  filter: drop-shadow(0 0 3px var(--lcd-fg));
+}
+[data-skin='hifi'] .marquee,
+[data-skin='hifi'] .lcd-scene {
+  text-shadow: 0 0 8px color-mix(in srgb, var(--lcd-fg) 70%, transparent);
+}
+[data-skin='hifi'] .transport {
+  gap: 0;
+}
+[data-skin='hifi'] .tbtn {
+  height: 54px;
+  border-radius: 0 0 6px 6px;
+  background: linear-gradient(180deg, #fffaf0 0%, #ece3d0 70%, #cfc3a8 100%);
+  box-shadow:
+    inset -1px 0 0 rgb(0 0 0 / 0.18),
+    inset 0 -4px 0 #b8ab8e,
+    0 0 0 1px #6a5e48,
+    0 3px 4px rgb(0 0 0 / 0.35);
+  transition: transform 60ms;
+}
+[data-skin='hifi'] .tbtn[aria-pressed='true'],
+[data-skin='hifi'] .tbtn:active {
+  transform: translateY(3px);
+  background: linear-gradient(180deg, #f0e8d6, #ddd2ba);
+  box-shadow:
+    inset 0 -1px 0 #b8ab8e,
+    0 0 0 1px #6a5e48;
+  color: #c4600a;
+}
+[data-skin='hifi'] .led-btn,
+[data-skin='hifi'] .sbtn {
+  border-radius: 3px;
+}
+
+/* Neon: angled panel cuts, outline buttons and an edge that pulses with the beat */
+[data-skin='neon'] .window {
+  border-radius: 0;
+  clip-path: polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px);
+  background:
+    linear-gradient(135deg, rgb(255 47 176 / 0.12), transparent 30%, transparent 70%, rgb(60 240 255 / 0.1)),
+    #0a0512;
+}
+[data-skin='neon'] .deck-wrap,
+[data-skin='neon'] .scrim .sheet,
+[data-skin='neon'] .game-window {
+  filter: drop-shadow(0 0 calc(3px + var(--beat, 0) * 9px) #ff2fb0) drop-shadow(0 0 1px #ff8ae6);
+}
+[data-skin='neon'] .titlebar {
+  background: transparent;
+  border-bottom: 1px solid #ff2fb0;
+  padding-left: 22px;
+}
+[data-skin='neon'] .titlebar-grip {
+  height: 2px;
+  background: linear-gradient(90deg, #3cf0ff, #ff2fb0);
+}
+[data-skin='neon'] .lcd-box,
+[data-skin='neon'] .info,
+[data-skin='neon'] .scene-btn {
+  border: 1px solid #3cf0ff;
+  box-shadow:
+    inset 0 0 12px rgb(60 240 255 / 0.18),
+    0 0 6px rgb(60 240 255 / 0.35);
+}
+[data-skin='neon'] .tbtn,
+[data-skin='neon'] .led-btn,
+[data-skin='neon'] .sbtn {
+  background: transparent;
+  color: #ff6fe0;
+  border-radius: 2px;
+  box-shadow:
+    inset 0 0 0 1px #ff4fd8,
+    0 0 6px rgb(255 79 216 / 0.35);
+}
+[data-skin='neon'] .tbtn:hover,
+[data-skin='neon'] .sbtn:hover {
+  box-shadow:
+    inset 0 0 0 1px #ff8ae6,
+    0 0 12px rgb(255 79 216 / 0.7);
+  filter: none;
+}
+[data-skin='neon'] .tbtn[aria-pressed='true'],
+[data-skin='neon'] .tbtn:active,
+[data-skin='neon'] .led-btn[aria-pressed='true'] {
+  background: #ff2fb0;
+  color: #0a0512;
+  box-shadow: 0 0 14px rgb(255 47 176 / 0.9);
+}
+[data-skin='neon'] .led-btn[aria-pressed='true'] .led {
+  background: #0a0512;
+  box-shadow: none;
+}
+
+/* Toxic: a bulbous plastic shell, gel pill buttons and a hazard-stripe title bar */
+[data-skin='toxic'] .window {
+  border-radius: 30px 30px 24px 24px;
+  background:
+    radial-gradient(130% 70% at 50% 0%, rgb(255 255 255 / 0.45), transparent 55%),
+    radial-gradient(90% 60% at 50% 110%, rgb(0 60 0 / 0.35), transparent 70%),
+    linear-gradient(180deg, #b6f020, #6fb000);
+  box-shadow:
+    inset 0 2px 0 rgb(255 255 255 / 0.6),
+    inset 0 -6px 12px rgb(30 60 0 / 0.35),
+    0 0 0 2px #2e4a00,
+    0 16px 36px rgb(0 0 0 / 0.55);
+}
+[data-skin='toxic'] .titlebar {
+  height: 36px;
+  margin: 6px 16px 0;
+  border-radius: 999px;
+  background: #111;
+  border: 0;
+  box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.8);
+  overflow: hidden;
+}
+[data-skin='toxic'] .titlebar-grip {
+  height: 100%;
+  opacity: 1;
+  background: repeating-linear-gradient(-45deg, #ffd400 0 8px, #111 8px 16px);
+}
+[data-skin='toxic'] .titlebar-title {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #111;
+  color: #fff23a;
+  text-shadow: none;
+}
+[data-skin='toxic'] .titlebar-buttons {
+  margin-right: 2px;
+}
+[data-skin='toxic'] .deck {
+  padding: 8px 16px 18px;
+}
+[data-skin='toxic'] .lcd-box,
+[data-skin='toxic'] .info,
+[data-skin='toxic'] .scene-btn {
+  border-radius: 14px;
+  border: 2px solid #2e4a00;
+}
+[data-skin='toxic'] .tbtn,
+[data-skin='toxic'] .led-btn,
+[data-skin='toxic'] .sbtn,
+[data-skin='toxic'] .chip-face {
+  border-radius: 999px;
+  color: #142200;
+  background:
+    radial-gradient(ellipse at 50% 18%, rgb(255 255 255 / 0.95), transparent 52%),
+    linear-gradient(180deg, #f6ff8a, #9ad400);
+  box-shadow:
+    inset 0 -3px 5px rgb(40 80 0 / 0.45),
+    0 0 0 2px #2e4a00,
+    0 3px 4px rgb(0 0 0 / 0.3);
+}
+[data-skin='toxic'] .sbtn.scene-btn {
+  color: var(--list-fg);
+  background: var(--list-bg);
+  border-radius: 14px;
+  box-shadow:
+    inset 0 2px 4px rgb(0 0 0 / 0.8),
+    0 0 0 2px #2e4a00;
+}
+[data-skin='toxic'] .tbtn[aria-pressed='true'],
+[data-skin='toxic'] .tbtn:active,
+[data-skin='toxic'] .sbtn:active {
+  background:
+    radial-gradient(ellipse at 50% 80%, rgb(255 255 255 / 0.5), transparent 55%),
+    linear-gradient(180deg, #7fb800, #c8f040);
+  box-shadow:
+    inset 0 3px 5px rgb(20 40 0 / 0.55),
+    0 0 0 2px #2e4a00;
+}
+[data-skin='toxic'] .transport {
+  gap: 5px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-skin='neon'] .deck-wrap,
+  [data-skin='neon'] .scrim .sheet,
+  [data-skin='neon'] .game-window {
+    filter: drop-shadow(0 0 4px #ff2fb0);
+  }
+  [data-skin='hifi'] .tbtn {
+    transition: none;
+  }
+}
