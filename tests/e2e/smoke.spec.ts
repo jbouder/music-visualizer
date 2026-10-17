@@ -17,6 +17,9 @@ async function startDemo(page: Page) {
 }
 
 test('plays the demo in GPU mode with one tap, then switches to Retro', async ({ page, baseURL }) => {
+  test.setTimeout(90_000);
+  // CI runners render WebGL in software; keep the raymarched scenes' fill rate manageable.
+  await page.setViewportSize({ width: 480, height: 270 });
   const errors = trackErrors(page);
   const foreign: string[] = [];
   page.on('request', (r) => {
@@ -40,7 +43,7 @@ test('plays the demo in GPU mode with one tap, then switches to Retro', async ({
   await page.locator('body').press('t');
   for (const id of ['tunnel', 'grid', 'kaleido', 'blobs', 'nebula', 'blackhole', 'planet', 'hyperspace']) {
     await page.goto(`/#r=${id}`);
-    await expect(page.locator(`canvas[data-scene="${id}"]`)).toBeVisible();
+    await expect(page.locator(`canvas[data-scene="${id}"]`)).toBeVisible({ timeout: 20_000 });
   }
 
   expect(foreign, 'no third-party requests').toEqual([]);
